@@ -1,0 +1,27 @@
+package com.aniket.ecommerce.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.aniket.ecommerce.dao.ProductDao;
+import com.aniket.ecommerce.entity.Product;
+
+@Service
+public class ProductService {
+
+	
+	 ProductDao productDao=new ProductDao();
+	
+	public Product saveProduct(Product product) {
+		// TODO Auto-generated method stub
+		Product product2 = productDao.saveProduct(product);
+		
+		if(product2!=null)
+			return product2;
+		
+		return null;
+		
+		
+	}
+
+}
