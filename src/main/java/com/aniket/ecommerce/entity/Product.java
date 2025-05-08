@@ -21,6 +21,10 @@ public class Product {
 	@Lob
     @Column(columnDefinition = "LONGBLOB")
     private byte[] image;
+	
+	@Column(nullable = false)
+	private String category;  // e.g., "phones", "tv", etc.
+
 
 
 }

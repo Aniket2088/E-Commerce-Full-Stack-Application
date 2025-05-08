@@ -1,6 +1,7 @@
 package com.aniket.ecommerce.controller;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -31,36 +32,38 @@ public class ProductController {
 	}
 	
 	
-	 @PostMapping("/saveProduct")
-	    public String saveProduct( @RequestParam("productName") String productName,
-	            @RequestParam("productDescription") String productDescription,
-	            @RequestParam("productPrice") double productPrice,
-	            @RequestParam("image") MultipartFile imageFile,ModelMap map) {
+	@PostMapping("/saveProduct")
+	public String saveProduct(@RequestParam("productName") String productName,
+	                          @RequestParam("productDescription") String productDescription,
+	                          @RequestParam("productPrice") double productPrice,
+	                          @RequestParam("category") String category,
+	                          @RequestParam("image") MultipartFile imageFile,
+	                          ModelMap map) {
 
-	        Product product = new Product();
-	       
-	        product.setProductName(productName);
-	        product.setProductDescription(productDescription);
-	        product.setProductPrice(productPrice);
+	    Product product = new Product();
 
-	        try {
-	            product.setImage(imageFile.getBytes());
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	            // Handle error - log or show message
-	        }
-	        
-	        Product product2 = productService.saveProduct(product);
-	        if(product2!=null)
-	        {
-	        	map.addAttribute("product", product2);
-	        }else {
-	        	map.addAttribute("message", "Product Not Found");
-	        }
-	        	
+	    product.setProductName(productName);
+	    product.setProductDescription(productDescription);
+	    product.setProductPrice(productPrice);
+	    product.setCategory(category);  // ✅ Save category from dropdown
 
-	       
-	        return "ProductView"; // Redirect back to form or success page
+	    try {
+	        product.setImage(imageFile.getBytes());
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        // You may also set an error message to show on frontend
 	    }
+
+	    productService.saveProduct(product);  // Save the product
+
+	    List<Product> products = productService.finAllProduct();
+	    if (products != null) {
+	        map.addAttribute("products", products);
+	    } else {
+	        map.addAttribute("message", "Product Not Found");
+	    }
+
+	    return "ProductView"; // Show the list view after adding
+	}
 
 }

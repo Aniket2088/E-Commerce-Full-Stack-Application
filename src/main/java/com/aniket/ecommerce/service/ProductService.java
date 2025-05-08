@@ -1,5 +1,7 @@
 package com.aniket.ecommerce.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,16 @@ public class ProductService {
 		
 		return null;
 		
+		
+	}
+
+	public List<Product> finAllProduct() {
+		// TODO Auto-generated method stub
+		List<Product> products = productDao.findAllProduct();
+		
+		if(products!=null)
+			return products;
+		return  null;
 		
 	}
 
