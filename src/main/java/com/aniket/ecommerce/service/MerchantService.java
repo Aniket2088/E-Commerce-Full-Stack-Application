@@ -25,4 +25,12 @@ public class MerchantService {
 		return null;
 	}
 
+	public Merchant authenticate(String email, String password) {
+		Merchant merchant = dao.authenticate(email,password);
+		if(merchant!=null)
+			return merchant;
+					
+		return null;
+	}
+
 }

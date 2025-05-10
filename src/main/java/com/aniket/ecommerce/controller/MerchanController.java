@@ -1,5 +1,7 @@
 package com.aniket.ecommerce.controller;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,6 +22,12 @@ public class MerchanController {
 	protected String MerchantSignup()
 	{
 		return "MerchantSignup";
+	}
+	
+	@GetMapping(path = "/merchantLogin")
+	protected String MerchantLogin()
+	{
+		return "merchantLogin";
 	}
 
 
@@ -62,5 +70,34 @@ public class MerchanController {
             return "merchantSignup";
         }
         return "";
+    }
+    
+    // Process login form submission
+    @PostMapping("/merchantLogin")
+    public String processLogin(
+            @RequestParam("email") String email,
+            @RequestParam("password") String password,
+            HttpSession session,
+            Model model) {
+        
+        try {
+            // Authenticate merchant
+            Merchant merchant = merchantService.authenticate(email, password);
+            
+            if (merchant != null) {
+                // Store merchant in session
+                session.setAttribute("currentMerchant", merchant);
+                session.setAttribute("merchantName", merchant.getName());
+                
+                // Redirect to dashboard
+                return "AddProduct";
+            } else {
+                model.addAttribute("error", "Invalid email or password");
+                return "merchantLogin";
+            }
+        } catch (Exception e) {
+            model.addAttribute("error", "Login failed: " + e.getMessage());
+            return "merchantLogin";
+        }
     }
 }
