@@ -103,4 +103,17 @@ public class MerchantDao {
 	        throw new RuntimeException("Authentication failed", e);
 	    }
 	}
+
+	public Merchant findMerchantById(int merchantId) {
+		// TODO Auto-generated method stub
+		
+		openConnection();
+		Merchant merchant = entityManager.find(Merchant.class, merchantId);
+		
+		if(merchant!=null)
+			return merchant;
+		
+		return null;
+		
+	}
 }

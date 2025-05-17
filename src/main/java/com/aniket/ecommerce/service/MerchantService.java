@@ -33,4 +33,13 @@ public class MerchantService {
 		return null;
 	}
 
+	public Merchant findMerchantById(int merchantId) {
+		// TODO Auto-generated method stub
+		
+		Merchant merchant = dao.findMerchantById(merchantId);
+		if(merchant!=null)
+			return merchant;
+		return null;
+	}
+
 }

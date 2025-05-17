@@ -1,5 +1,7 @@
 package com.aniket.ecommerce.controller;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.aniket.ecommerce.entity.Merchant;
 import com.aniket.ecommerce.service.MerchantService;
@@ -72,32 +75,43 @@ public class MerchanController {
         return "";
     }
     
-    // Process login form submission
     @PostMapping("/merchantLogin")
     public String processLogin(
             @RequestParam("email") String email,
             @RequestParam("password") String password,
             HttpSession session,
-            Model model) {
+            RedirectAttributes redirectAttributes) {
         
         try {
-            // Authenticate merchant
             Merchant merchant = merchantService.authenticate(email, password);
             
             if (merchant != null) {
-                // Store merchant in session
-                session.setAttribute("currentMerchant", merchant);
-                session.setAttribute("merchantName", merchant.getName());
-                
-                // Redirect to dashboard
-                return "AddProduct";
+                // Store merchant ID in session (better than storing whole object)
+                session.setAttribute("merchantId", merchant.getId());
+                redirectAttributes.addFlashAttribute("merchant", merchant);
+                return "redirect:/AddProduct";
             } else {
-                model.addAttribute("error", "Invalid email or password");
-                return "merchantLogin";
+                redirectAttributes.addFlashAttribute("error", "Invalid email or password");
+                return "redirect:/merchantLogin";
             }
         } catch (Exception e) {
-            model.addAttribute("error", "Login failed: " + e.getMessage());
-            return "merchantLogin";
+            redirectAttributes.addFlashAttribute("error", "Login failed: " + e.getMessage());
+            return "redirect:/merchantLogin";
         }
+    }
+    
+    @GetMapping("/logout")
+    public String logout(HttpSession session, HttpServletResponse response) {
+        // Invalidate the session
+        session.invalidate();
+        
+        // Optional: Clear any cookies
+        Cookie cookie = new Cookie("JSESSIONID", null);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        
+        // Redirect to login page with logout message
+        return "redirect:/merchantLogin";
     }
 }

@@ -1,3 +1,5 @@
+<%@page import="com.aniket.ecommerce.service.MerchantService"%>
+<%@page import="com.aniket.ecommerce.entity.Merchant"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -198,13 +200,25 @@
 </style>
 </head>
 <body>
+<%
+MerchantService  service = new MerchantService();
+    // Get merchant from flash attributes or session
+    Merchant merchant = (Merchant) request.getAttribute("merchant");
+    if (merchant == null) {
+        // Fallback to session ID if needed
+        Integer merchantId = (Integer) session.getAttribute("merchantId");
+        if (merchantId != null) {
+            merchant = service.findMerchantById(merchantId);
+        }
+    }
+%>
     <div class="container">
         <div class="form-header">
             <h1>ADD PRODUCT</h1>
             <p>Fill in the details below to add a new product</p>
         </div>
 
-        <form action="./saveProduct" method="post" enctype="multipart/form-data" id="productForm">
+        <form action="./saveProduct/<%=merchant.getId() %>" method="post" enctype="multipart/form-data" id="productForm">
             <div class="form-group">
                 <label for="productName">Product Name</label>
                 <input type="text" id="productName" name="productName" placeholder="Enter product name" required>
