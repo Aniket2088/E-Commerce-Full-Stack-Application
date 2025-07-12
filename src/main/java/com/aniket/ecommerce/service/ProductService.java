@@ -36,4 +36,9 @@ public class ProductService {
 		
 	}
 
+	public List<Product> getProductsByMerchantId(int merchantId) {
+	    return productDao.getProductsByMerchantId(merchantId);
+	}
+
+
 }

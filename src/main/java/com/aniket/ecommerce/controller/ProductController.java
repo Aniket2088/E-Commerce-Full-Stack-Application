@@ -3,6 +3,8 @@ package com.aniket.ecommerce.controller;
 import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
 
@@ -91,4 +93,27 @@ public class ProductController {
 	        return "redirect:/AddProduct";
 	    }
 	}
+	
+
+    @PostMapping("/logout")
+    public String logout(HttpSession session, HttpServletResponse response) {
+        // Get user type before invalidating session
+        String userType = (String) session.getAttribute("userType");
+        
+        // Invalidate session
+        session.invalidate();
+        
+        // Clear cookies
+        Cookie cookie = new Cookie("JSESSIONID", null);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        
+        // Redirect based on user type
+        if ("merchant".equals(userType)) {
+            return "redirect:/merchant/login?logout=true";
+        } else {
+            return "redirect:/user/login?logout=true";
+        }
+    }
 }

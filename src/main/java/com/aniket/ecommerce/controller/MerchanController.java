@@ -1,5 +1,7 @@
 package com.aniket.ecommerce.controller;
 
+import java.util.List;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -13,13 +15,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.aniket.ecommerce.entity.Merchant;
+import com.aniket.ecommerce.entity.Product;
 import com.aniket.ecommerce.service.MerchantService;
+import com.aniket.ecommerce.service.ProductService;
 
 @Controller
 public class MerchanController {
 	
 	@Autowired
 	private MerchantService merchantService;
+	
+	@Autowired
+	private ProductService productService;
 	
 	@GetMapping(path = "/MerchantSignup")
 	protected String MerchantSignup()
@@ -81,25 +88,39 @@ public class MerchanController {
             @RequestParam("password") String password,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
+  
         
-        try {
+        
             Merchant merchant = merchantService.authenticate(email, password);
+           
             
             if (merchant != null) {
                 // Store merchant ID in session (better than storing whole object)
                 session.setAttribute("merchantId", merchant.getId());
                 redirectAttributes.addFlashAttribute("merchant", merchant);
-                return "redirect:/AddProduct";
+                return "redirect:/merchantproductview";
             } else {
                 redirectAttributes.addFlashAttribute("error", "Invalid email or password");
                 return "redirect:/merchantLogin";
             }
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Login failed: " + e.getMessage());
-            return "redirect:/merchantLogin";
-        }
-    }
+       }
     
+    @GetMapping("/merchantproductview")
+    public String viewMerchantProducts(HttpSession session, Model model) {
+        // Get the merchantId from session
+        Integer merchantId = (Integer) session.getAttribute("merchantId");
+        
+        if (merchantId == null) {
+            return "redirect:/merchantLogin"; // Not logged in
+        }
+
+        // Fetch only that merchant’s products
+        List<Product> products = productService.getProductsByMerchantId(merchantId);
+
+        model.addAttribute("products", products);
+        return "MerchantproductView"; // JSP page
+    }
+
     @GetMapping("/logout")
     public String logout(HttpSession session, HttpServletResponse response) {
         // Invalidate the session

@@ -37,6 +37,7 @@ public class MerchantDao {
 		entityTransaction.begin();
 		entityManager.persist(merchant);
 		entityTransaction.commit();
+		closeConnection();
 		
 		return merchant;
 		
@@ -80,12 +81,14 @@ public class MerchantDao {
 	public Merchant authenticate(String email, String password) {
 	    try {
 	        // 1. Find merchant by email
+	    	openConnection();
 	        TypedQuery<Merchant> query = entityManager.createQuery(
 	            "SELECT m FROM Merchant m WHERE m.email = :email", Merchant.class);
 	        query.setParameter("email", email);
 	        
 	        Merchant merchant = query.getSingleResult();
-	        
+	       
+	        closeConnection();
 	        // 2. Verify password (plain text comparison - NOT for production)
 	        if (merchant != null && merchant.getPassword().equals(password)) {
 	            return merchant;

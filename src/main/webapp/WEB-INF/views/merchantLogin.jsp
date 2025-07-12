@@ -180,7 +180,7 @@
             </div>
         <% } %>
 
-        <form action="./merchantLogin" method="post">
+        <form action="${pageContext.request.contextPath}/merchantLogin" method="post">
             <div class="form-group">
                 <label for="email">Email Address</label>
                 <input type="email" id="email" name="email" placeholder="Enter your registered email" required>

@@ -67,4 +67,12 @@ public class ProductDao {
 		
 		
 	}
+
+	public List<Product> getProductsByMerchantId(int merchantId) {
+		openConnection();
+	    return entityManager.createQuery("SELECT p FROM Product p WHERE p.merchant.id = :merchantId", Product.class)
+	                        .setParameter("merchantId", merchantId)
+	                        .getResultList();
+	}
+
 }
