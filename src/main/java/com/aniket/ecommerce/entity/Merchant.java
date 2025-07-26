@@ -30,7 +30,14 @@ public class Merchant {
 	@OneToMany(mappedBy = "merchant")
 	private List<Product> products;
 
-	
+	@Override
+	public String toString() {
+	    return "Merchant{" +
+	            "id=" + id +
+	            ", name='" + name + '\'' +
+	            // Don't include products here to avoid circular reference
+	            '}';
+	}
 
 	
 

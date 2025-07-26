@@ -9,6 +9,7 @@
 		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 		<class>com.aniket.ecommerce.entity.Product</class>
 		<class>com.aniket.ecommerce.entity.Merchant</class>
+		<class>com.aniket.ecommerce.entity.User</class>
 		<properties>
 			<property name="javax.persistence.jdbc.Driver"
 				value="com.mysql.cj.jdbc.Driver" />

@@ -2,6 +2,7 @@ package com.aniket.ecommerce.controller;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -10,6 +11,7 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,8 +23,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.aniket.ecommerce.entity.Merchant;
 import com.aniket.ecommerce.entity.Product;
+import com.aniket.ecommerce.entity.User;
 import com.aniket.ecommerce.service.MerchantService;
 import com.aniket.ecommerce.service.ProductService;
+import com.aniket.ecommerce.service.UserService;
 
 
 @Controller
@@ -35,6 +39,9 @@ public class ProductController {
 	@Autowired
 	private MerchantService merchantService;
 	
+	@Autowired
+	private UserService userService;
+	
 	
 	
 	@GetMapping(path ="/AddProduct")
@@ -45,7 +52,6 @@ public class ProductController {
 	
 	
 	@PostMapping("/saveProduct/{merchantId}")
-	@Transactional
 	public String saveProduct(
 	        @PathVariable("merchantId") int merchantId,
 	        @RequestParam("productName") String productName,
@@ -53,17 +59,14 @@ public class ProductController {
 	        @RequestParam("productPrice") double productPrice,
 	        @RequestParam("category") String category,
 	        @RequestParam("image") MultipartFile imageFile,
-	        HttpSession session,
-	        RedirectAttributes redirectAttributes,ModelMap map) {
+	        ModelMap model) {
 
 	    try {
-	        // 1. Get the merchant (attached to current session)
 	        Merchant merchant = merchantService.findMerchantById(merchantId);
 	        if (merchant == null) {
 	            throw new RuntimeException("Merchant not found");
 	        }
 
-	        // 2. Create and populate product
 	        Product product = new Product();
 	        product.setProductName(productName);
 	        product.setProductDescription(productDescription);
@@ -71,49 +74,47 @@ public class ProductController {
 	        product.setCategory(category);
 	        product.setMerchant(merchant);
 
-	        // 3. Handle image
 	        if (!imageFile.isEmpty()) {
 	            product.setImage(imageFile.getBytes());
 	        }
 
-	        // 4. Save product (this should automatically update both sides if cascade is set)
 	        productService.saveProduct(product);
+	        List<Product> products = merchant.getProducts();
+	        model.addAttribute("products", products);
+	        model.addAttribute("success", "Product saved successfully!");
 
-	        // 5. Add to merchant's collection (if not cascading)
-	        merchant.getProducts().add(product);
-	        map.addAttribute("products", merchant.getProducts());
-		   
-	        
-	        // 6. Set success message
-	        redirectAttributes.addFlashAttribute("success", "Product added successfully!");
-	        return "ProductView";
+	        return "MerchantproductView";
 
 	    } catch (Exception e) {
-	        redirectAttributes.addFlashAttribute("error", "Error saving product: " + e.getMessage());
-	        return "redirect:/AddProduct";
+	        model.addAttribute("error", "Error saving product: " + e.getMessage());
+	        return "MerchantproductView";
 	    }
 	}
-	
 
-    @PostMapping("/logout")
-    public String logout(HttpSession session, HttpServletResponse response) {
-        // Get user type before invalidating session
-        String userType = (String) session.getAttribute("userType");
-        
-        // Invalidate session
-        session.invalidate();
-        
-        // Clear cookies
-        Cookie cookie = new Cookie("JSESSIONID", null);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
-        
-        // Redirect based on user type
-        if ("merchant".equals(userType)) {
-            return "redirect:/merchant/login?logout=true";
-        } else {
-            return "redirect:/user/login?logout=true";
-        }
-    }
+	
+	@GetMapping("/products")
+	public String getProductsByCategory(
+	      @RequestParam(name = "category", required = false) String category,
+	      HttpSession session,
+	      Model model) {
+	    User sessionUser = (User) session.getAttribute("user");
+	    if (sessionUser != null) {
+	        User currentUser = userService.findById(sessionUser.getId());
+	        session.setAttribute("user", currentUser);
+	    }
+	    List<String> categories = productService.getAllCategories();
+	    model.addAttribute("categories", categories);
+	    Map<String, Long> categoryProductsCount = productService.getCategoryProductCounts();
+	    model.addAttribute("categoryProductsCount", categoryProductsCount);
+	    List<Product> products;
+	    if (category != null && !category.isEmpty()) {
+	        products = productService.getProductsByCategory(category);
+	        model.addAttribute("selectedCategory", category);
+	    } else {
+	        products = productService.getAllProducts();
+	    }
+	    model.addAttribute("products", products);
+	    
+	    return "ProductsByCategory";
+	}
 }

@@ -121,7 +121,7 @@ public class MerchanController {
         return "MerchantproductView"; // JSP page
     }
 
-    @GetMapping("/logout")
+    @GetMapping("/logoutMerchant")
     public String logout(HttpSession session, HttpServletResponse response) {
         // Invalidate the session
         session.invalidate();

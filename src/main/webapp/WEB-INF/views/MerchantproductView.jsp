@@ -52,7 +52,6 @@
         min-height: 100vh;
     }
     
-    /* Navigation Bar */
     .nav-bar {
         background: white;
         padding: 1rem 2rem;
@@ -71,6 +70,7 @@
     .nav-buttons {
         display: flex;
         gap: 1rem;
+        align-items: center;
     }
     
     .nav-btn {
@@ -114,6 +114,38 @@
     .danger-btn:hover {
         background: #c82333;
         border-color: #bd2130;
+    }
+    
+    /* Search Bar Styles */
+    .search-container {
+        flex: 1;
+        max-width: 400px;
+        margin: 0 1rem;
+        position: relative;
+    }
+    
+    .search-input {
+        width: 100%;
+        padding: 0.5rem 1rem;
+        padding-right: 2.5rem;
+        border-radius: var(--border-radius);
+        border: 1px solid #ddd;
+        font-size: 0.95rem;
+        transition: var(--transition);
+    }
+    
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+    }
+    
+    .search-icon {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-color);
     }
     
     /* Main Content - Your Original Product Cards */
@@ -254,6 +286,17 @@
         gap: 0.3rem;
     }
     
+    /* Search Results Styles */
+    .no-results {
+        text-align: center;
+        padding: 2rem;
+        grid-column: 1 / -1;
+    }
+    
+    .hidden {
+        display: none !important;
+    }
+    
     /* Footer */
     .footer {
         background: var(--dark-color);
@@ -296,6 +339,13 @@
             justify-content: space-between;
         }
         
+        .search-container {
+            order: -1;
+            width: 100%;
+            max-width: none;
+            margin: 0.5rem 0;
+        }
+        
         .product-grid {
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         }
@@ -308,12 +358,23 @@
 <nav class="nav-bar">
     <div class="nav-title">E-Commerce</div>
     
+    <!-- Search Bar -->
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search products...">
+        <i class="fas fa-search search-icon"></i>
+    </div>
+    
     <div class="nav-buttons">
         <c:choose>
             <c:when test="${not empty sessionScope.userId || not empty sessionScope.merchantId}">
-                <form action="${pageContext.request.contextPath}/logout" method="get" style="display: contents;">
+                <form action="${pageContext.request.contextPath}/logoutMerchant" method="get" style="display: contents;">
                     <button type="submit" class="nav-btn danger-btn">
                         <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+                <form action="${pageContext.request.contextPath}/AddProduct" method="get" style="display: contents;">
+                    <button type="submit" class="nav-btn danger-btn">
+                        <i class="fas fa-sign-out-alt"></i> AddProduct
                     </button>
                 </form>
             </c:when>
@@ -336,7 +397,7 @@
         <p>Browse through our wide selection of products</p>
     </div>
     
-    <div class="products-container">
+    <div class="products-container" id="productsContainer">
         <c:choose>
             <c:when test="${empty categoryMap}">
                 <div style="text-align: center; padding: 2rem;">
@@ -345,7 +406,7 @@
             </c:when>
             <c:otherwise>
                 <c:forEach var="entry" items="${categoryMap}">
-                    <section class="category-section">
+                    <section class="category-section" data-category="${entry.key}">
                         <div class="category-header">
                             <h2 class="category-title">${entry.key}</h2>
                             <span class="product-count">${entry.value.size()} items</span>
@@ -360,7 +421,10 @@
                                         base64Image = Base64.getEncoder().encodeToString(p.getImage());
                                     }
                                 %>
-                                <div class="product-card">
+                                <div class="product-card" 
+                                     data-name="${product.productName.toLowerCase()}" 
+                                     data-description="${product.productDescription.toLowerCase()}"
+                                     data-category="${product.category.toLowerCase()}">
                                     <div class="product-image-container">
                                         <img src="data:image/jpeg;base64,<%= base64Image %>" alt="${product.productName}" class="product-image"/>
                                     </div>
@@ -397,6 +461,92 @@
     </div>
     <p class="copyright">&copy; 2023 E-Commerce Platform. All rights reserved.</p>
 </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const productCards = document.querySelectorAll('.product-card');
+    const categorySections = document.querySelectorAll('.category-section');
+    
+    // Add data attributes to all product cards for searching
+    productCards.forEach(card => {
+        const name = card.querySelector('.product-name').textContent.toLowerCase();
+        const description = card.querySelector('.product-description').textContent.toLowerCase();
+        const category = card.closest('.category-section').dataset.category.toLowerCase();
+        
+        card.dataset.name = name;
+        card.dataset.description = description;
+        card.dataset.category = category;
+    });
+    
+    // Search functionality
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        
+        if (searchTerm === '') {
+            // Show all products and categories when search is empty
+            categorySections.forEach(section => {
+                section.classList.remove('hidden');
+                const productsInSection = section.querySelectorAll('.product-card');
+                productsInSection.forEach(product => product.classList.remove('hidden'));
+                
+                // Update product count
+                const visibleCount = section.querySelectorAll('.product-card:not(.hidden)').length;
+                section.querySelector('.product-count').textContent = `${visibleCount} items`;
+            });
+            return;
+        }
+        
+        let anyProductsFound = false;
+        
+        // Search through each category section
+        categorySections.forEach(section => {
+            const productsInSection = section.querySelectorAll('.product-card');
+            let categoryHasVisibleProducts = false;
+            
+            productsInSection.forEach(product => {
+                const name = product.dataset.name;
+                const description = product.dataset.description;
+                const category = product.dataset.category;
+                
+                if (name.includes(searchTerm) || 
+                    description.includes(searchTerm) || 
+                    category.includes(searchTerm)) {
+                    product.classList.remove('hidden');
+                    categoryHasVisibleProducts = true;
+                    anyProductsFound = true;
+                } else {
+                    product.classList.add('hidden');
+                }
+            });
+            
+            // Show/hide the entire category section based on whether it has visible products
+            if (categoryHasVisibleProducts) {
+                section.classList.remove('hidden');
+                
+                // Update product count
+                const visibleCount = section.querySelectorAll('.product-card:not(.hidden)').length;
+                section.querySelector('.product-count').textContent = `${visibleCount} items`;
+            } else {
+                section.classList.add('hidden');
+            }
+        });
+        
+        // Show "no results" message if no products match the search
+        const noResultsElement = document.querySelector('.no-results');
+        if (!anyProductsFound) {
+            if (!noResultsElement) {
+                const noResultsDiv = document.createElement('div');
+                noResultsDiv.className = 'no-results';
+                noResultsDiv.innerHTML = '<p>No products found matching your search.</p>';
+                document.getElementById('productsContainer').appendChild(noResultsDiv);
+            }
+        } else if (noResultsElement) {
+            noResultsElement.remove();
+        }
+    });
+});
+</script>
 
 </body>
 </html>

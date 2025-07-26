@@ -1,5 +1,7 @@
 package com.aniket.ecommerce.entity;
 
+import java.util.Base64;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+
 
 import lombok.Data;
 @Entity
@@ -30,7 +33,28 @@ public class Product {
 	@ManyToOne
 	@JoinColumn(name = "merchant_id")
 	private Merchant merchant;
+	
 
+	 // Add these methods
+    public String getBase64Image() {
+        if (this.image == null || this.image.length == 0) {
+            return "";
+        }
+        return Base64.getEncoder().encodeToString(this.image);
+    }
 
+    public boolean hasImage() {
+        return this.image != null && this.image.length > 0;
+    }
+    
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", productName='" + productName + '\'' +
+                ", price=" + productPrice +
+                // Don't include merchant here to avoid circular reference
+                '}';
+    }
 
 }
