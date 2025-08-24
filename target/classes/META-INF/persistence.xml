@@ -7,23 +7,28 @@
 
     <persistence-unit name="ecommerce">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-        
+
         <!-- Your Entities -->
         <class>com.aniket.ecommerce.entity.Product</class>
         <class>com.aniket.ecommerce.entity.Merchant</class>
         <class>com.aniket.ecommerce.entity.User</class>
 
         <properties>
-            <!-- DB Config (taken from environment variables on Render) -->
-            <property name="javax.persistence.jdbc.Driver" value="com.mysql.cj.jdbc.Driver" />
-            <property name="javax.persistence.jdbc.url" value="${DB_URL}" />
-            <property name="javax.persistence.jdbc.user" value="${DB_USERNAME}" />
-            <property name="javax.persistence.jdbc.password" value="${DB_PASSWORD}" />
+            <!-- PostgreSQL Driver -->
+            <property name="javax.persistence.jdbc.Driver" value="org.postgresql.Driver"/>
 
-            <!-- Hibernate Options -->
-            <property name="hibernate.hbm2ddl.auto" value="update" />
-            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect" />
-            <property name="hibernate.show_sql" value="true" />
+            <!-- JDBC URL (Render PostgreSQL) -->
+            <property name="javax.persistence.jdbc.url"
+                value="jdbc:postgresql://dpg-d2ll8ovdiees73c55c3g-a.oregon-postgres.render.com:5432/ecommerce_6ive"/>
+
+            <!-- Credentials -->
+            <property name="javax.persistence.jdbc.user" value="ecommerce_6ive_user"/>
+            <property name="javax.persistence.jdbc.password" value="kP3EuC0UZKxLgSky4cNEHWkKTkukL20E"/>
+
+            <!-- Hibernate Properties -->
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL95Dialect"/>
+            <property name="hibernate.show_sql" value="true"/>
         </properties>
     </persistence-unit>
 </persistence>
