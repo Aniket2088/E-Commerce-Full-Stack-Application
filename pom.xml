@@ -88,11 +88,7 @@
     <version>1.4</version>
 </dependency>
 
-    <dependency>
-    	<groupId>com.aniket</groupId>
-    	<artifactId>QRcode1</artifactId>
-    	<version>0.0.1-SNAPSHOT</version>
-    </dependency>
+   
   </dependencies>
 
   <build>
