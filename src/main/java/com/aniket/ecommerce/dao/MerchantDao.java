@@ -24,7 +24,7 @@ public class MerchantDao {
 	
 	static {
 	    try {
-	        Class.forName("com.mysql.cj.jdbc.Driver");
+	        Class.forName("org.postgresql.Driver");
 	    } catch (ClassNotFoundException e) {
 	        e.printStackTrace();
 	    }
