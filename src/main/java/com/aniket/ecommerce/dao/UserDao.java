@@ -11,8 +11,16 @@ import com.aniket.ecommerce.entity.User;
 public class UserDao {
 
     // ✅ Create only ONE EntityManagerFactory (singleton)
-    private static final EntityManagerFactory emf = 
-            Persistence.createEntityManagerFactory("ecommerce");
+	  private EntityManagerFactory emf;
+
+	    public UserDao() {
+	        try {
+	            emf = Persistence.createEntityManagerFactory("ecommerce");
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            throw new RuntimeException("Failed to initialize UserDao", e);
+	        }
+	    }
 
     private EntityManager entityManager;
     private EntityTransaction entityTransaction;
