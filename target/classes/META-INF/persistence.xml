@@ -8,16 +8,16 @@
     <persistence-unit name="ecommerce">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
-        <!-- Your Entities -->
+        <!-- Entities -->
         <class>com.aniket.ecommerce.entity.Product</class>
         <class>com.aniket.ecommerce.entity.Merchant</class>
         <class>com.aniket.ecommerce.entity.User</class>
 
         <properties>
             <!-- PostgreSQL Driver -->
-            <property name="javax.persistence.jdbc.Driver" value="org.postgresql.Driver"/>
+            <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
 
-            <!-- JDBC URL (Render PostgreSQL) -->
+            <!-- JDBC URL -->
             <property name="javax.persistence.jdbc.url"
                 value="jdbc:postgresql://dpg-d2ll8ovdiees73c55c3g-a.oregon-postgres.render.com:5432/ecommerce_6ive"/>
 
@@ -26,9 +26,8 @@
             <property name="javax.persistence.jdbc.password" value="kP3EuC0UZKxLgSky4cNEHWkKTkukL20E"/>
 
             <!-- Hibernate Properties -->
-            <property name="hibernate.hbm2ddl.auto" value="update"/>
-            <property name="hibernate.hbm2ddl.auto" value="create"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="create"/>
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
         </properties>
