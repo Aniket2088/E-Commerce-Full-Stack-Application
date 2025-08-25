@@ -1,7 +1,6 @@
 package com.aniket.ecommerce.dao;
 
 import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -14,31 +13,41 @@ import com.aniket.ecommerce.entity.Product;
 
 public class ProductDao {
 
-    static {
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private EntityManagerFactory entityManagerFactory;
+    private EntityManagerFactory emf;
     private EntityManager entityManager;
     private EntityTransaction entityTransaction;
 
+    public ProductDao() {
+        try {
+            // Initialize EMF for this DAO instance
+            emf = Persistence.createEntityManagerFactory("ecommerce");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Could not create EntityManagerFactory for ProductDao", e);
+        }
+    }
+
     // ---------- Utility methods ----------
     public void openConnection() {
-        entityManagerFactory = Persistence.createEntityManagerFactory("ecommerce");
-        entityManager = entityManagerFactory.createEntityManager();
-        entityTransaction = entityManager.getTransaction();
+        try {
+            entityManager = emf.createEntityManager();
+            entityTransaction = entityManager.getTransaction();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Could not create EntityManager for ProductDao", e);
+        }
     }
 
     public void closeConnection() {
         if (entityManager != null && entityManager.isOpen()) {
             entityManager.close();
         }
-        if (entityManagerFactory != null && entityManagerFactory.isOpen()) {
-            entityManagerFactory.close();
+    }
+
+    public void close() {
+        closeConnection();
+        if (emf != null && emf.isOpen()) {
+            emf.close();
         }
     }
 

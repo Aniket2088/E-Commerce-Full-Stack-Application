@@ -5,21 +5,21 @@ import com.aniket.ecommerce.entity.Merchant;
 
 public class MerchantDao {
 
-    private static final EntityManagerFactory entityManagerFactory;
+    private EntityManagerFactory emf;
 
-    // Load PostgreSQL Driver once
-    static {
+    public MerchantDao() {
         try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
+            // Initialize EMF for this DAO instance
+            emf = Persistence.createEntityManagerFactory("ecommerce");
+        } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("Could not create EntityManagerFactory for MerchantDao", e);
         }
-        entityManagerFactory = Persistence.createEntityManagerFactory("ecommerce");
     }
 
     // Save Merchant
     public Merchant saveMerchant(Merchant merchant) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityManager entityManager = emf.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
 
         try {
@@ -37,7 +37,7 @@ public class MerchantDao {
 
     // Find by Email
     public Merchant findByEmail(String email) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityManager entityManager = emf.createEntityManager();
         try {
             TypedQuery<Merchant> query = entityManager.createQuery(
                 "SELECT m FROM Merchant m WHERE m.email = :email", Merchant.class);
@@ -52,7 +52,7 @@ public class MerchantDao {
 
     // Authenticate Merchant (email + password check)
     public Merchant authenticate(String email, String password) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityManager entityManager = emf.createEntityManager();
         try {
             TypedQuery<Merchant> query = entityManager.createQuery(
                 "SELECT m FROM Merchant m WHERE m.email = :email", Merchant.class);
@@ -73,7 +73,7 @@ public class MerchantDao {
 
     // Find by Merchant ID
     public Merchant findMerchantById(int merchantId) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityManager entityManager = emf.createEntityManager();
         try {
             return entityManager.find(Merchant.class, merchantId);
         } finally {
@@ -82,9 +82,9 @@ public class MerchantDao {
     }
 
     // Close Factory (when application shuts down)
-    public static void closeFactory() {
-        if (entityManagerFactory != null && entityManagerFactory.isOpen()) {
-            entityManagerFactory.close();
+    public void close() {
+        if (emf != null && emf.isOpen()) {
+            emf.close();
         }
     }
 }

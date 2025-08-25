@@ -10,34 +10,41 @@ import com.aniket.ecommerce.entity.User;
 
 public class UserDao {
 
-    // ✅ Create only ONE EntityManagerFactory (singleton)
-	  private EntityManagerFactory emf;
-
-	    public UserDao() {
-	        try {
-	            emf = Persistence.createEntityManagerFactory("ecommerce");
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	            throw new RuntimeException("Failed to initialize UserDao", e);
-	        }
-	    }
-
+    private EntityManagerFactory emf;
     private EntityManager entityManager;
     private EntityTransaction entityTransaction;
 
+    public UserDao() {
+        try {
+            // Initialize EMF for this DAO instance
+            emf = Persistence.createEntityManagerFactory("ecommerce");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Could not create EntityManagerFactory for UserDao", e);
+        }
+    }
+
     private void openConnection() {
-        entityManager = emf.createEntityManager();
-        entityTransaction = entityManager.getTransaction();
+        try {
+            entityManager = emf.createEntityManager();
+            entityTransaction = entityManager.getTransaction();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Could not create EntityManager for UserDao", e);
+        }
     }
 
     private void closeConnection() {
         if (entityManager != null && entityManager.isOpen()) {
-            if (entityTransaction != null && entityTransaction.isActive()) {
-                entityTransaction.rollback();
-            }
             entityManager.close();
         }
-        // ❌ Do NOT close emf here → keep it open globally
+    }
+
+    public void close() {
+        closeConnection();
+        if (emf != null && emf.isOpen()) {
+            emf.close();
+        }
     }
 
     public User signUpUser(String firstName, String lastName, String email, String password) {
@@ -51,9 +58,11 @@ public class UserDao {
             entityTransaction.begin();
             entityManager.persist(user);
             entityTransaction.commit();
-            return user; // return the saved user
+            return user;
         } catch (Exception e) {
-            if (entityTransaction.isActive()) entityTransaction.rollback();
+            if (entityTransaction != null && entityTransaction.isActive()) {
+                entityTransaction.rollback();
+            }
             throw e;
         } finally {
             closeConnection();
@@ -69,13 +78,12 @@ public class UserDao {
 
             User user = query.getSingleResult();
 
-            // Verify password (plain text check — use hashing in production)
             if (user != null && user.getPassword().equals(password)) {
                 return user;
             }
             return null;
         } catch (Exception e) {
-            return null; // user not found or wrong login
+            return null;
         } finally {
             closeConnection();
         }
@@ -110,7 +118,6 @@ public class UserDao {
             entityTransaction.begin();
             User managedUser = entityManager.merge(user);
 
-            // clear cart items if needed (avoid constraint issues)
             if (managedUser.getCartItems() != null) {
                 managedUser.getCartItems().clear();
             }
