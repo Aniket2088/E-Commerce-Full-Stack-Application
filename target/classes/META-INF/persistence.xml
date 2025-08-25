@@ -16,15 +16,13 @@
         <properties>
             <!-- Database Connection -->
             <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
+            
+            <!-- Add SSL parameters directly to the URL -->
             <property name="javax.persistence.jdbc.url" 
-                     value="jdbc:postgresql://dpg-d2ll8ovdiees73c55c3g-a.oregon-postgres.render.com:5432/ecommerce_6ive"/>
+                     value="jdbc:postgresql://dpg-d2ll8ovdiees73c55c3g-a.oregon-postgres.render.com:5432/ecommerce_6ive?ssl=true&amp;sslmode=require"/>
+                     
             <property name="javax.persistence.jdbc.user" value="ecommerce_6ive_user"/>
             <property name="javax.persistence.jdbc.password" value="kP3EuC0UZKxLgSky4cNEHWkKTkukL20E"/>
-
-            <!-- SSL Configuration for Heroku/Render -->
-            <property name="hibernate.connection.ssl" value="true"/>
-            <property name="hibernate.connection.sslmode" value="require"/>
-            <property name="hibernate.connection.sslfactory" value="org.postgresql.ssl.DefaultSSLFactory"/>
 
             <!-- Hibernate Properties -->
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
@@ -38,6 +36,8 @@
             <property name="hibernate.c3p0.timeout" value="300"/>
             <property name="hibernate.c3p0.max_statements" value="50"/>
             <property name="hibernate.c3p0.idle_test_period" value="3000"/>
+            
+            <!-- Remove the problematic SSL factory properties -->
         </properties>
     </persistence-unit>
 </persistence>
