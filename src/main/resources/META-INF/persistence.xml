@@ -17,9 +17,9 @@
             <!-- PostgreSQL Driver -->
             <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
 
-            <!-- JDBC URL -->
+            <!-- Use Render external DB URL with SSL -->
             <property name="javax.persistence.jdbc.url"
-                value="jdbc:postgresql://dpg-d2ll8ovdiees73c55c3g-a.oregon-postgres.render.com:5432/ecommerce_6ive"/>
+                value="jdbc:postgresql://dpg-d2ll8ovdiees73c55c3g-a.oregon-postgres.render.com:5432/ecommerce_6ive?sslmode=require"/>
 
             <!-- Credentials -->
             <property name="javax.persistence.jdbc.user" value="ecommerce_6ive_user"/>
