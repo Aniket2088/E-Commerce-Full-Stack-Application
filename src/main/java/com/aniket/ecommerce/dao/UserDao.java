@@ -6,131 +6,118 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 
+import org.hibernate.Hibernate;
+
+import com.aniket.ecommerce.entity.Merchant;
 import com.aniket.ecommerce.entity.User;
 
 public class UserDao {
+	static {
+	    try {
+	        Class.forName("com.mysql.cj.jdbc.Driver");
+	    } catch (ClassNotFoundException e) {
+	        e.printStackTrace();
+	    }
+	}
+	private EntityManager entityManager;
+	private EntityManagerFactory entityManagerFactory;
+	private EntityTransaction entityTransaction;
+	
+	private void openConnection()
+	{
+		entityManagerFactory=Persistence.createEntityManagerFactory("ecommerce");
+		entityManager=entityManagerFactory.createEntityManager();
+		entityTransaction=entityManager.getTransaction();
+	}
+	
+	public void closeConnection()
+	{
+		if(entityManagerFactory!=null)
+			entityManagerFactory.close();
+		if(entityManager!=null)
+			entityManager.close();
+		if(entityTransaction.isActive())
+		{
+			if(entityTransaction!=null)
+				entityTransaction.rollback();
+		}
+	}
 
-    private EntityManagerFactory emf;
-    private EntityManager entityManager;
-    private EntityTransaction entityTransaction;
+	public User signUpUser(String firstName, String lastName, String email, String password) {
+		User user = new User();
+		user.setName(firstName+" "+lastName);
+		user.setEmail(email);
+		user.setPassword(password);
+		openConnection();
+		entityTransaction.begin();
+		entityManager.persist(user);
+		entityTransaction.commit();
+		closeConnection();
+		return null;
+	}
 
-    public UserDao() {
-        try {
-            // Initialize EMF for this DAO instance
-            emf = Persistence.createEntityManagerFactory("ecommerce");
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Could not create EntityManagerFactory for UserDao", e);
-        }
-    }
-
-    private void openConnection() {
-        try {
-            entityManager = emf.createEntityManager();
-            entityTransaction = entityManager.getTransaction();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Could not create EntityManager for UserDao", e);
-        }
-    }
-
-    private void closeConnection() {
-        if (entityManager != null && entityManager.isOpen()) {
-            entityManager.close();
-        }
-    }
-
-    public void close() {
+	public User  loginUser(String email, String password) {
+		openConnection();
+        TypedQuery<User> query = entityManager.createQuery(
+            "SELECT m FROM User m WHERE m.email = :email", User.class);
+        query.setParameter("email", email);
+        
+        User user = query.getSingleResult();
+       
         closeConnection();
-        if (emf != null && emf.isOpen()) {
-            emf.close();
-        }
-    }
-
-    public User signUpUser(String firstName, String lastName, String email, String password) {
-        User user = new User();
-        user.setName(firstName + " " + lastName);
-        user.setEmail(email);
-        user.setPassword(password);
-
-        openConnection();
-        try {
-            entityTransaction.begin();
-            entityManager.persist(user);
-            entityTransaction.commit();
+        // 2. Verify password (plain text comparison - NOT for production)
+        if (user != null && user.getPassword().equals(password)) {
             return user;
-        } catch (Exception e) {
-            if (entityTransaction != null && entityTransaction.isActive()) {
-                entityTransaction.rollback();
-            }
-            throw e;
-        } finally {
-            closeConnection();
         }
-    }
+			
+        return null;
+		
+	}
 
-    public User loginUser(String email, String password) {
-        openConnection();
-        try {
-            TypedQuery<User> query = entityManager.createQuery(
-                "SELECT u FROM User u WHERE u.email = :email", User.class);
-            query.setParameter("email", email);
+	public void save(User user) {
+	    openConnection();
+	    try {
+	        entityTransaction.begin();
+	        User managedUser = entityManager.merge(user);
+	        entityManager.flush(); // Ensure changes are persisted
+	        entityTransaction.commit();
+	    } catch (Exception e) {
+	    	e.getMessage();
+	        if (entityTransaction.isActive()) {
+	            entityTransaction.rollback();
+	        }
+	        throw e;
+	    } finally {
+	        closeConnection();
+	    }
+	}
 
-            User user = query.getSingleResult();
-
-            if (user != null && user.getPassword().equals(password)) {
-                return user;
-            }
-            return null;
-        } catch (Exception e) {
-            return null;
-        } finally {
-            closeConnection();
-        }
-    }
-
-    public void save(User user) {
-        openConnection();
-        try {
-            entityTransaction.begin();
-            entityManager.merge(user);
-            entityTransaction.commit();
-        } catch (Exception e) {
-            if (entityTransaction.isActive()) entityTransaction.rollback();
-            throw e;
-        } finally {
-            closeConnection();
-        }
-    }
-
-    public User findById(int id) {
-        openConnection();
-        try {
-            return entityManager.find(User.class, id);
-        } finally {
-            closeConnection();
-        }
-    }
-
-    public boolean deleteUser(User user) {
-        openConnection();
-        try {
-            entityTransaction.begin();
-            User managedUser = entityManager.merge(user);
-
-            if (managedUser.getCartItems() != null) {
-                managedUser.getCartItems().clear();
-            }
-
-            entityManager.remove(managedUser);
-            entityTransaction.commit();
-            return true;
-        } catch (Exception e) {
-            if (entityTransaction.isActive()) entityTransaction.rollback();
-            e.printStackTrace();
-            return false;
-        } finally {
-            closeConnection();
-        }
-    }
+	public User findById(int id) {
+		// TODO Auto-generated method stub
+		openConnection();
+User user = entityManager.find(User.class, id);
+closeConnection();
+		return user;
+	}
+	
+	public boolean deleteUser(User user) {
+		 try {
+			 openConnection();
+		        // Get a managed instance of the user
+		        User managedUser = entityManager.merge(user);
+		        
+		        // Clear any relationships if needed
+		        managedUser.getCartItems().clear();
+		        
+		        // Now remove the managed entity
+		        entityManager.remove(managedUser);
+		        closeConnection();
+		        return true;
+		    } catch (Exception e) {
+		        // Log the error
+		        e.printStackTrace();
+		        return false;
+		    }
+		
+	}
 }

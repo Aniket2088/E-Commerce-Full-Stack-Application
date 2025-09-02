@@ -19,6 +19,10 @@ public class User {
     @Column(nullable = false)
     private String name;
     
+    // Add this relationship for multiple addresses
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Address> addresses = new ArrayList<>();
+    
     @Column(nullable = false, unique = true)
     private String email;
     

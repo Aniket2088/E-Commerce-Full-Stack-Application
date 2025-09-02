@@ -356,7 +356,7 @@
                                     <li><a class="dropdown-item" href="${pageContext.request.contextPath}/logout">Logout</a></li>
                                 </ul>
                             </div>
-                            <a href="${pageContext.request.contextPath}/cart" class="btn btn-primary ms-2">
+                            <a href="${pageContext.request.contextPath}/cartView" class="btn btn-primary ms-2">
                                 <i class="fas fa-shopping-cart"></i> Cart
                             </a>
                         </c:when>

@@ -1,43 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
           http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd"
-    version="2.2">
-
-    <persistence-unit name="ecommerce" transaction-type="RESOURCE_LOCAL">
-        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-
-        <!-- Entities -->
-        <class>com.aniket.ecommerce.entity.Product</class>
-        <class>com.aniket.ecommerce.entity.Merchant</class>
-        <class>com.aniket.ecommerce.entity.User</class>
-
-        <properties>
-            <!-- Database Connection -->
-            <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
-            
-            <!-- Add SSL parameters directly to the URL -->
-            <property name="javax.persistence.jdbc.url" 
-                     value="jdbc:postgresql://dpg-d2ll8ovdiees73c55c3g-a.oregon-postgres.render.com:5432/ecommerce_6ive?ssl=true&amp;sslmode=require"/>
-                     
-            <property name="javax.persistence.jdbc.user" value="ecommerce_6ive_user"/>
-            <property name="javax.persistence.jdbc.password" value="kP3EuC0UZKxLgSky4cNEHWkKTkukL20E"/>
-
-            <!-- Hibernate Properties -->
-            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
-            <property name="hibernate.hbm2ddl.auto" value="update"/>
-            <property name="hibernate.show_sql" value="true"/>
-            <property name="hibernate.format_sql" value="true"/>
-
-            <!-- Connection Pool Settings -->
-            <property name="hibernate.c3p0.min_size" value="5"/>
-            <property name="hibernate.c3p0.max_size" value="20"/>
-            <property name="hibernate.c3p0.timeout" value="300"/>
-            <property name="hibernate.c3p0.max_statements" value="50"/>
-            <property name="hibernate.c3p0.idle_test_period" value="3000"/>
-            
-            <!-- Remove the problematic SSL factory properties -->
-        </properties>
-    </persistence-unit>
+	version="2.2">
+	<persistence-unit name="ecommerce">
+	
+		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+		<class>com.aniket.ecommerce.entity.Product</class>
+		<class>com.aniket.ecommerce.entity.Merchant</class>
+		<class>com.aniket.ecommerce.entity.User</class>
+		<properties>
+			<property name="javax.persistence.jdbc.Driver"
+				value="com.mysql.cj.jdbc.Driver" />
+			<property name="javax.persistence.jdbc.url"
+				value="jdbc:mysql://localhost:3306/ecommerce?createDatabaseIfNotExist=true" />
+			<property name="javax.persistence.jdbc.user" value="root" />
+			<property name="javax.persistence.jdbc.password"
+				value="root" />
+			<property name="hibernate.hbm2ddl.auto" value="update" />
+			<property name="hibernate.dialect"
+				value="org.hibernate.dialect.MySQL8Dialect" />
+			<property name="hibernate.show_sql" value="true" />
+		</properties>
+	</persistence-unit>
 </persistence>

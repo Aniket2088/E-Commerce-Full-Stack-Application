@@ -432,14 +432,7 @@
                                         <h3 class="product-name">${product.productName}</h3>
                                         <p class="product-description">${product.productDescription}</p>
                                         <div class="product-price">₹${product.productPrice}</div>
-                                        <div class="product-actions">
-                                            <button class="action-btn primary-btn">
-                                                <i class="fas fa-cart-plus"></i> Add to Cart
-                                            </button>
-                                            <button class="action-btn secondary-btn">
-                                                <i class="far fa-heart"></i>
-                                            </button>
-                                        </div>
+                                       
                                     </div>
                                 </div>
                             </c:forEach>

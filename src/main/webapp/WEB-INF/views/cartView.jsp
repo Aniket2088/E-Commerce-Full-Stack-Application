@@ -21,7 +21,7 @@
             object-fit: contain;
         }
         .quantity-input {
-            width: 60px;
+            width: 70px;
             text-align: center;
         }
         .empty-cart-icon {
@@ -45,6 +45,12 @@
     <c:if test="${not empty info}">
         <div class="alert alert-info alert-dismissible fade show" role="alert">
             ${info}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </c:if>
+    <c:if test="${not empty error}">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            ${error}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </c:if>
@@ -76,54 +82,86 @@
                         <div class="card-body p-0">
                             <div class="list-group list-group-flush">
                                 <c:set var="totalPrice" value="0" />
+                                <c:set var="processedProductIds" value="" />
+                                
                                 <c:forEach var="product" items="${cartItems}">
-                                    <c:set var="subtotal" value="${product.productPrice}" />
-                                    <c:set var="totalPrice" value="${totalPrice + subtotal}" />
-                                    <div class="list-group-item p-3 cart-item-card">
-                                        <div class="row align-items-center">
-                                            <div class="col-md-2 text-center">
-                                                <c:choose>
-                                                    <c:when test="${product.hasImage()}">
-                                                        <img src="data:image/jpeg;base64,${product.getBase64Image()}" 
-                                                             alt="${product.productName}" 
-                                                             class="img-fluid product-img">
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <div class="bg-light p-3 rounded">
-                                                            <i class="fas fa-box-open fa-3x text-secondary"></i>
+                                    <!-- Check if we've already processed this product using a simple string contains approach -->
+                                    <c:set var="alreadyProcessed" value="false" />
+                                    <c:if test="${not empty processedProductIds}">
+                                        <c:forTokens items="${processedProductIds}" delims="," var="processedId">
+                                            <c:if test="${processedId eq product.id}">
+                                                <c:set var="alreadyProcessed" value="true" />
+                                            </c:if>
+                                        </c:forTokens>
+                                    </c:if>
+                                    
+                                    <c:if test="${not alreadyProcessed}">
+                                        <c:set var="quantity" value="0" />
+                                        
+                                        <!-- Count how many times this product appears in the cart -->
+                                        <c:forEach var="item" items="${cartItems}">
+                                            <c:if test="${item.id == product.id}">
+                                                <c:set var="quantity" value="${quantity + 1}" />
+                                            </c:if>
+                                        </c:forEach>
+                                        
+                                        <c:set var="subtotal" value="${product.productPrice * quantity}" />
+                                        <c:set var="totalPrice" value="${totalPrice + subtotal}" />
+                                        <c:set var="processedProductIds" value="${processedProductIds},${product.id}" />
+                                        
+                                        <div class="list-group-item p-3 cart-item-card">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-2 text-center">
+                                                    <c:choose>
+                                                        <c:when test="${product.hasImage()}">
+                                                            <img src="data:image/jpeg;base64,${product.getBase64Image()}" 
+                                                                 alt="${product.productName}" 
+                                                                 class="img-fluid product-img">
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <div class="bg-light p-3 rounded">
+                                                                <i class="fas fa-box-open fa-3x text-secondary"></i>
+                                                            </div>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <h5 class="mb-1">${product.productName}</h5>
+                                                    <p class="text-muted small mb-2">${product.productDescription}</p>
+                                                    <span class="badge bg-info">${product.category}</span>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="h5 mb-0">
+                                                        ₹<fmt:formatNumber value="${product.productPrice}" type="number" maxFractionDigits="2"/>
+                                                        <div class="text-muted small">each</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <form action="${pageContext.request.contextPath}/updateCartQuantity" method="post" class="d-flex align-items-center">
+                                                        <input type="hidden" name="productId" value="${product.id}" />
+                                                        <div class="input-group input-group-sm">
+                                                           
+                                                            <input type="number" name="quantity" value="${quantity}" 
+                                                                   class="form-control quantity-input" min="1"/>
                                                         </div>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </div>
-                                            <div class="col-md-5">
-                                                <h5 class="mb-1">${product.productName}</h5>
-                                                <p class="text-muted small mb-2">${product.productDescription}</p>
-                                                <span class="badge bg-info">${product.category}</span>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <div class="h5 mb-0">
-                                                    ₹<fmt:formatNumber value="${product.productPrice}" type="number" maxFractionDigits="2"/>
+                                                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">
+                                                            <i class="fas fa-sync-alt"></i>
+                                                        </button>
+                                                    </form>
+                                                    <div class="text-muted small mt-1">
+                                                        Subtotal: ₹<fmt:formatNumber value="${subtotal}" type="number" maxFractionDigits="2"/>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-1 text-end">
+                                                    <a href="${pageContext.request.contextPath}/removeFromCart/${product.id}" 
+                                                       class="btn btn-sm btn-outline-danger"
+                                                       onclick="return confirm('Remove all ${quantity} of this item from your cart?')">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </a>
                                                 </div>
                                             </div>
-                                            <div class="col-md-2">
-                                                <form action="${pageContext.request.contextPath}/updateCartQuantity" method="post" class="d-flex align-items-center">
-                                                    <input type="hidden" name="productId" value="${product.id}" />
-                                                    <input type="number" name="quantity" value="1" 
-                                                           class="form-control form-control-sm quantity-input" min="1"/>
-                                                    <button class="btn btn-sm btn-outline-primary ms-2">
-                                                        <i class="fas fa-sync-alt"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                            <div class="col-md-1 text-end">
-                                                <a href="${pageContext.request.contextPath}/removeFromCart/${product.id}" 
-                                                   class="btn btn-sm btn-outline-danger"
-                                                   onclick="return confirm('Remove this item from your cart?')">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </a>
-                                            </div>
                                         </div>
-                                    </div>
+                                    </c:if>
                                 </c:forEach>
                             </div>
                         </div>
@@ -136,7 +174,7 @@
                     <i class="fas fa-chevron-left me-2"></i>Continue Shopping
                 </a>
                 <c:if test="${not empty cartItems}">
-                    <a href="${pageContext.request.contextPath}/clearCart" class="btn btn-outline-danger">
+                    <a href="${pageContext.request.contextPath}/clear" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to clear your cart?')">
                         <i class="fas fa-trash-alt me-2"></i>Clear Cart
                     </a>
                 </c:if>
@@ -163,7 +201,7 @@
                             <strong>Total:</strong>
                             <strong>₹<fmt:formatNumber value="${totalPrice}" type="number" maxFractionDigits="2"/></strong>
                         </div>
-                        <a href="${pageContext.request.contextPath}/checkout" class="btn btn-primary w-100 py-2">
+                        <a href="${pageContext.request.contextPath}/addressPage" class="btn btn-primary w-100 py-2">
                             <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
                         </a>
                     </div>
