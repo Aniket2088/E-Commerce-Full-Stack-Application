@@ -84,7 +84,7 @@
                         <p class="text-muted mb-0">Please provide your shipping information</p>
                     </div>
                     <div class="card-body">
-<!-- Address Form -->>
+<!-- Address Form -->
 <form id="addressForm" action="${pageContext.request.contextPath}/saveAddress" method="post">
     <h5 class="mb-3 border-bottom pb-2">Add / Edit Address</h5>
     

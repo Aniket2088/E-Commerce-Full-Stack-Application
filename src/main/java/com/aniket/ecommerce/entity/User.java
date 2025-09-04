@@ -18,6 +18,7 @@ public class User {
     
     @Column(nullable = false)
     private String name;
+    private String phone;
     
     // Add this relationship for multiple addresses
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

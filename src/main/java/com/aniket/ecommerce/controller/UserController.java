@@ -1,5 +1,6 @@
 package com.aniket.ecommerce.controller;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -15,8 +16,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.aniket.ecommerce.entity.Address;
 import com.aniket.ecommerce.entity.Product;
 import com.aniket.ecommerce.entity.User;
+import com.aniket.ecommerce.service.AddressService;
 import com.aniket.ecommerce.service.ProductService;
 import com.aniket.ecommerce.service.UserService;
 
@@ -27,6 +30,9 @@ public class UserController {
 	
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private AddressService addressService;
 	
 	@GetMapping(path = "/homePage")
 	protected String homePage(Model model)
@@ -39,7 +45,27 @@ public class UserController {
 		        
 		return "HomePage";
 	}
-	
+	@GetMapping("/paymentPage")
+	public String paymentPage(HttpSession session, Model model) {
+	    User user = (User) session.getAttribute("user");
+	    if (user == null) {
+	        return "redirect:/userLogin";
+	    }
+	    
+	    // Get fresh user data
+	    User currentUser = userService.findById(user.getId());
+	    
+	    // Get saved addresses
+	    List<Address> savedAddresses = addressService.getAddressesByUserId(currentUser.getId());
+	    
+	    // Get cart items
+	    List<Product> cartItems = currentUser.getCartItems();
+	    
+	    model.addAttribute("savedAddresses", savedAddresses);
+	    model.addAttribute("cartItems", cartItems);
+	    
+	    return "PaymentPage";
+	}
 	@GetMapping(path="/userLogin")
 	protected String userLogin()
 	{
