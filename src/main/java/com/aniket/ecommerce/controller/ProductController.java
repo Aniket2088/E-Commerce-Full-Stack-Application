@@ -50,7 +50,19 @@ public class ProductController {
 		return "AddProduct";
 	}
 	
-	
+	 @GetMapping("/orders")
+	    public String viewOrders(HttpSession session, Model model) {
+	        User user = (User) session.getAttribute("user");
+	        if (user == null) {
+	            return "redirect:/userLogin";
+	        }
+	        
+	        // Get all products with payment status true for this user
+	        List<Product> purchasedProducts = productService.findByPaymentStatusTrue(user);
+	        model.addAttribute("purchasedProducts", purchasedProducts);
+	        
+	        return "orders";
+	    }
 	@PostMapping("/saveProduct/{merchantId}")
 	public String saveProduct(
 	        @PathVariable("merchantId") int merchantId,
@@ -117,4 +129,6 @@ public class ProductController {
 	    
 	    return "ProductsByCategory";
 	}
+	
+	
 }

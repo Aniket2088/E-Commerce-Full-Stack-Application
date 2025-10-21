@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.aniket.ecommerce.dao.ProductDao;
 import com.aniket.ecommerce.entity.Merchant;
 import com.aniket.ecommerce.entity.Product;
+import com.aniket.ecommerce.entity.User;
 
 @Service
 public class ProductService {
@@ -79,6 +80,11 @@ public class ProductService {
 		public List<Product> getAllProducts() {
 			List<Product> products = productDao.getAllProducts();
 			return products;
+		}
+
+		public List<Product> findByPaymentStatusTrue(User user) {
+			 List<Product> products = productDao.findByPaymentStatusTrue(user);
+		        return products != null ? products : Collections.emptyList();
 		}
 
 }

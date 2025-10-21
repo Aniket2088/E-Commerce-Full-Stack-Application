@@ -11,6 +11,7 @@ import javax.persistence.Query;
 
 import com.aniket.ecommerce.entity.Merchant;
 import com.aniket.ecommerce.entity.Product;
+import com.aniket.ecommerce.entity.User;
 
 
 public class ProductDao {
@@ -32,7 +33,7 @@ public class ProductDao {
 		// TODO Auto-generated method stub
 		openConnection();
 		entityTransaction.begin();
-		entityManager.persist(product);
+		entityManager.merge(product);
 		entityTransaction.commit();
 		
 		return product;
@@ -141,6 +142,19 @@ public class ProductDao {
 	    } finally {
 	        closeConnection();
 	    }
+	}
+
+	public List<Product> findByPaymentStatusTrue(User user) {
+		boolean status =true;
+		 openConnection();
+		    try {
+		        Query query = entityManager.createQuery(
+		            "SELECT p FROM Product p WHERE p.paymentStatus  = :status", Product.class);
+		        query.setParameter("status", status);
+		        return query.getResultList();
+		    } finally {
+		        closeConnection();
+		    }
 	}
 	
 }

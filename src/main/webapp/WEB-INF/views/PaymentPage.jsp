@@ -512,6 +512,12 @@
         }
 
         function processOrder(addressId, paymentMethod, paymentId) {
+            // Collect all product IDs from the cart
+            const productIds = [];
+            <c:forEach var="product" items="${cartItems}">
+                productIds.push(${product.id});
+            </c:forEach>
+            
             // Submit the form to process the order
             const form = document.createElement('form');
             form.method = 'POST';
@@ -531,6 +537,15 @@
             paymentIdInput.type = 'hidden';
             paymentIdInput.name = 'paymentId';
             paymentIdInput.value = paymentId;
+            
+            // Add product IDs as hidden inputs
+            productIds.forEach((id, index) => {
+                const productInput = document.createElement('input');
+                productInput.type = 'hidden';
+                productInput.name = 'productIds';
+                productInput.value = id;
+                form.appendChild(productInput);
+            });
             
             form.appendChild(addressInput);
             form.appendChild(paymentMethodInput);

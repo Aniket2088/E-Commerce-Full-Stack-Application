@@ -35,7 +35,9 @@ public class Product {
 	@JoinColumn(name = "merchant_id")
 	private Merchant merchant;
 	
-
+	 @Column(name = "payment_status")
+	    private Boolean paymentStatus = false; // Default value
+    
 	 // Add these methods
     public String getBase64Image() {
         if (this.image == null || this.image.length == 0) {

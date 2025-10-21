@@ -1,12 +1,15 @@
 package com.aniket.ecommerce.controller;
 
+import com.aniket.ecommerce.entity.Product;
 import com.aniket.ecommerce.entity.User;
+import com.aniket.ecommerce.service.ProductService;
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
 import com.razorpay.Utils;
 
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -20,10 +23,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
 public class PaymentController {
+	
+	@Autowired
+	private ProductService productService;
 
     private String razorpayKeyId = "rzp_test_AOkSkGp6YQkF2n";
     private String razorpayKeySecret = "SiFDmZWAJ0V8Ir3iQF1Bbjah";
@@ -107,30 +114,36 @@ public class PaymentController {
     }
 
     @PostMapping("/processPayment")
-    public String processPayment(@RequestParam("addressId") String addressId,
+    public String processPayment(@RequestParam("addressId") int addressId,
                                @RequestParam("paymentMethod") String paymentMethod,
                                @RequestParam("paymentId") String paymentId,
+                               @RequestParam("productIds") List<Integer> productIds,
                                HttpSession session) {
+        
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/userLogin";
+        }
+        
         try {
-            User user = (User) session.getAttribute("user");
-            if (user == null) {
-                return "redirect:/userLogin";
+            // Update payment status for all products in the cart
+            for (Integer productId : productIds) {
+                Product product =productService.findProductById(productId);
+                if (product != null) {
+                    product.setPaymentStatus(true);
+                    productService.saveProduct(product);
+                    System.out.println(product);
+                }
             }
-
-            // Your order processing logic here
-            System.out.println("Processing order for user: " + user.getName());
-            System.out.println("Address ID: " + addressId);
-            System.out.println("Payment Method: " + paymentMethod);
-            System.out.println("Payment ID: " + paymentId);
-
-            // Clear cart, create order, etc.
-            // orderService.createOrder(user, addressId, paymentMethod, paymentId);
-
+           
+            // Clear the cart from session
+            session.removeAttribute("cartItems");
+            
+            // Redirect to confirmation page with success status
             return "redirect:/orderConfirmation?success=true";
-
         } catch (Exception e) {
             e.printStackTrace();
-            return "redirect:/paymentPage?error=Payment+processing+failed";
+            return "redirect:/orderConfirmation?success=false";
         }
     }
     // Add this method for order confirmation page
@@ -151,6 +164,6 @@ public class PaymentController {
             model.addAttribute("isSuccess", false);
         }
 
-        return "orderConfirmation"; // This should match your JSP file name
+        return "orderConfirmation";
     }
 }
