@@ -35,6 +35,10 @@ public class Product {
 	@JoinColumn(name = "merchant_id")
 	private Merchant merchant;
 	
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	private User user;
+	
 	 @Column(name = "payment_status")
 	    private Boolean paymentStatus = false; // Default value
     

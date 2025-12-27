@@ -145,16 +145,17 @@ public class ProductDao {
 	}
 
 	public List<Product> findByPaymentStatusTrue(User user) {
-		boolean status =true;
-		 openConnection();
-		    try {
-		        Query query = entityManager.createQuery(
-		            "SELECT p FROM Product p WHERE p.paymentStatus  = :status", Product.class);
-		        query.setParameter("status", status);
-		        return query.getResultList();
-		    } finally {
-		        closeConnection();
-		    }
+	    boolean status = true;
+	    openConnection();
+	    try {
+	        Query query = entityManager.createQuery(
+	            "SELECT p FROM Product p WHERE p.paymentStatus = :status AND p.user = :user", Product.class);
+	        query.setParameter("status", status);
+	        query.setParameter("user", user);
+	        return query.getResultList();
+	    } finally {
+	        closeConnection();
+	    }
 	}
 	
 }

@@ -52,7 +52,7 @@ public class ProductController {
 	
 	 @GetMapping("/orders")
 	    public String viewOrders(HttpSession session, Model model) {
-	        User user = (User) session.getAttribute("user");
+		        User user = (User) session.getAttribute("user");
 	        if (user == null) {
 	            return "redirect:/userLogin";
 	        }

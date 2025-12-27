@@ -1,5 +1,6 @@
 package com.aniket.ecommerce.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,15 +36,41 @@ public class UserController {
 	private AddressService addressService;
 	
 	@GetMapping(path = "/homePage")
-	protected String homePage(Model model)
-	{
-		 Map<String, Long> categoryCounts = productService.finAllProduct().stream()
-		            .collect(Collectors.groupingBy(Product::getCategory, Collectors.counting()));
+	protected String homePage(Model model) {
+	    // Get categories and their counts
+	    Map<String, Long> categoryCounts = productService.finAllProduct().stream()
+	        .collect(Collectors.groupingBy(Product::getCategory, Collectors.counting()));
 
-		        model.addAttribute("categories", categoryCounts.keySet());
-		        model.addAttribute("categoryProductsCount", categoryCounts);
-		        
-		return "HomePage";
+	    model.addAttribute("categories", categoryCounts.keySet());
+	    model.addAttribute("categoryProductsCount", categoryCounts);
+	    
+	    // Get products for homepage sections
+	    List<Product> allProducts = productService.finAllProduct();
+	    
+	    // Get featured products (you can modify this logic as needed)
+	    List<Product> featuredProducts = allProducts.stream()
+	        .limit(8)
+	        .collect(Collectors.toList());
+	    
+	    // Get latest products (by id or date, assuming higher id = newer)
+	    List<Product> latestProducts = allProducts.stream()
+	        .limit(8)
+	        .collect(Collectors.toList());
+	    
+	    // Get products by category for sliders
+	    Map<String, List<Product>> productsByCategory = new HashMap<>();
+	    for (String category : categoryCounts.keySet()) {
+	        List<Product> categoryProducts = allProducts.stream()
+	            .filter(p -> p.getCategory().equals(category))
+	            .limit(6) // Limit to 6 products per category for slider
+	            .collect(Collectors.toList());
+	        productsByCategory.put(category, categoryProducts);
+	    }
+	    model.addAttribute("featuredProducts", featuredProducts);
+	    model.addAttribute("latestProducts", latestProducts);
+	    model.addAttribute("productsByCategory", productsByCategory);
+	    
+	    return "HomePage";
 	}
 	@GetMapping("/paymentPage")
 	public String paymentPage(HttpSession session, Model model) {
@@ -106,6 +133,31 @@ public class UserController {
 
 	        map.addAttribute("categories", categoryCounts.keySet());
 	        map.addAttribute("categoryProductsCount", categoryCounts);
+	        // Get products for homepage sections
+		    List<Product> allProducts = productService.finAllProduct();
+		    
+		    // Get featured products (you can modify this logic as needed)
+		    List<Product> featuredProducts = allProducts.stream()
+		        .limit(8)
+		        .collect(Collectors.toList());
+		    
+		    // Get latest products (by id or date, assuming higher id = newer)
+		    List<Product> latestProducts = allProducts.stream()
+		        .limit(8)
+		        .collect(Collectors.toList());
+		    
+		    // Get products by category for sliders
+		    Map<String, List<Product>> productsByCategory = new HashMap<>();
+		    for (String category : categoryCounts.keySet()) {
+		        List<Product> categoryProducts = allProducts.stream()
+		            .filter(p -> p.getCategory().equals(category))
+		            .limit(6) // Limit to 6 products per category for slider
+		            .collect(Collectors.toList());
+		        productsByCategory.put(category, categoryProducts);
+		    }
+		    map.addAttribute("featuredProducts", featuredProducts);
+		    map.addAttribute("latestProducts", latestProducts);
+		    map.addAttribute("productsByCategory", productsByCategory);
 		return "HomePage";
 	}
 	@GetMapping("/logout")
@@ -123,8 +175,9 @@ public class UserController {
 
 	        map.addAttribute("categories", categoryCounts.keySet());
 	        map.addAttribute("categoryProductsCount", categoryCounts);
+	       
 	    // Redirect to login page with logout message
-	    return "HomePage";
+	    return "UserLogin";
 	}
 
 }

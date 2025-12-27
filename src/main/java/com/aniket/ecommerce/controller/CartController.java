@@ -45,6 +45,7 @@ public class CartController {
         model.addAttribute("cartItems", cartItems);
         // Update session with latest user data
         session.setAttribute("user", currentUser);
+        session.setAttribute("cartItems", cartItems);
 
         return "cartView";
     }
@@ -54,7 +55,6 @@ public class CartController {
     public String addToCart(@PathVariable("productId") int productId,
                           HttpSession session,
                           RedirectAttributes redirectAttributes) {
-        
         User user = (User) session.getAttribute("user");
         if (user == null) {
             redirectAttributes.addFlashAttribute("message", "Please login to add items to cart");

@@ -26,6 +26,8 @@ public class User {
     
     @Column(nullable = false, unique = true)
     private String email;
+	@OneToMany(mappedBy = "user")
+	private List<Product> products;
     
     @Column(nullable = false)
     private String password;

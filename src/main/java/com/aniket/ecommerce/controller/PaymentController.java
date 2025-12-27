@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,18 +128,35 @@ public class PaymentController {
         }
         
         try {
-            // Update payment status for all products in the cart
+            // Get the current user's cart items
+            List<Product> cartItems = user.getCartItems();
+            List<Product> productsToRemove = new ArrayList<>();
+            
+            // Update payment status, set user, and identify products to remove from cart
             for (Integer productId : productIds) {
-                Product product =productService.findProductById(productId);
+                Product product = productService.findProductById(productId);
                 if (product != null) {
                     product.setPaymentStatus(true);
+                    product.setUser(user);
                     productService.saveProduct(product);
                     System.out.println(product);
+                    
+                    // Find and mark the product for removal from cart
+                    cartItems.stream()
+                        .filter(cartProduct -> cartProduct.getId() == productId)
+                        .findFirst()
+                        .ifPresent(productsToRemove::add);
                 }
             }
+            
+            // Remove the purchased products from cart
+            cartItems.removeAll(productsToRemove);
+            
+            // Update user in database (if you have userService)
+            // userService.saveUser(user);
            
-            // Clear the cart from session
-            session.removeAttribute("cartItems");
+            // Clear the cart from session and update with new cart
+            session.setAttribute("cartItems", cartItems);
             
             // Redirect to confirmation page with success status
             return "redirect:/orderConfirmation?success=true";
