@@ -3,6 +3,7 @@ package com.aniket.ecommerce.controller;
 import com.aniket.ecommerce.entity.Product;
 import com.aniket.ecommerce.entity.User;
 import com.aniket.ecommerce.service.ProductService;
+import com.aniket.ecommerce.service.UserService;
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
@@ -33,6 +34,9 @@ public class PaymentController {
 	
 	@Autowired
 	private ProductService productService;
+	
+	@Autowired
+	private UserService userService;
 
     private String razorpayKeyId = "rzp_test_AOkSkGp6YQkF2n";
     private String razorpayKeySecret = "SiFDmZWAJ0V8Ir3iQF1Bbjah";
@@ -174,7 +178,9 @@ public class PaymentController {
         if (user == null) {
             return "redirect:/userLogin";
         }
+        user.getCartItems().clear();
 
+        userService.save(user);
         if (success != null && success) {
             model.addAttribute("message", "Your order has been placed successfully!");
             model.addAttribute("isSuccess", true);
