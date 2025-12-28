@@ -585,9 +585,11 @@
                                     <a href="#" class="action-btn">
                                         <i class="fas fa-redo me-1"></i>Reorder
                                     </a>
-                                    <a href="#" class="action-btn">
-                                        <i class="fas fa-file-invoice me-1"></i>Invoice
-                                    </a>
+                                    <a href="${pageContext.request.contextPath}/invoice/${product.id}" 
+   class="action-btn">
+   <i class="fas fa-file-invoice me-1"></i>Invoice
+</a>
+
                                 </div>
                             </div>
                         </c:forEach>

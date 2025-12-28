@@ -1,6 +1,7 @@
 package com.aniket.ecommerce.controller;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +28,14 @@ import com.aniket.ecommerce.entity.User;
 import com.aniket.ecommerce.service.MerchantService;
 import com.aniket.ecommerce.service.ProductService;
 import com.aniket.ecommerce.service.UserService;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 
 
 @Controller
@@ -129,6 +138,92 @@ public class ProductController {
 	    
 	    return "ProductsByCategory";
 	}
-	
+	@GetMapping("/invoice/{productId}")
+	public void generateInvoice(
+	        @PathVariable("productId") int productId,
+	        HttpServletResponse response,
+	        HttpSession session) throws Exception {
+
+	    User user = (User) session.getAttribute("user");
+	    Product product = productService.findProductById(productId);
+	    System.out.println(product.getMerchant());
+	    Merchant merchant = product.getMerchant();
+
+	    response.setContentType("application/pdf");
+	    response.setHeader("Content-Disposition",
+	            "attachment; filename=Invoice_" + productId + ".pdf");
+
+	    Document document = new Document(PageSize.A4);
+	    PdfWriter.getInstance(document, response.getOutputStream());
+	    document.open();
+
+	    Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18);
+	    Font headingFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12);
+	    Font normalFont = FontFactory.getFont(FontFactory.HELVETICA, 10);
+
+	    // ===== COMPANY TITLE =====
+	    Paragraph title = new Paragraph("SHOP EASE - TAX INVOICE", titleFont);
+	    title.setAlignment(Element.ALIGN_CENTER);
+	    document.add(title);
+	    document.add(new Paragraph(" "));
+
+	    // ===== MERCHANT DETAILS =====
+	    document.add(new Paragraph("Seller Details", headingFont));
+	    document.add(new Paragraph("Merchant ID : " + merchant.getId(), normalFont));
+	    document.add(new Paragraph("Name        : " + merchant.getName(), normalFont));
+	    document.add(new Paragraph("Email       : " + merchant.getEmail(), normalFont));
+	    document.add(new Paragraph("Phone       : " + merchant.getPhone(), normalFont));
+	    document.add(new Paragraph("Bank Name   : " + merchant.getBankName(), normalFont));
+	    document.add(new Paragraph("Account No : " + merchant.getAccountNumber(), normalFont));
+	    document.add(new Paragraph("IFSC Code  : " + merchant.getIfscCode(), normalFont));
+	    document.add(new Paragraph(" "));
+
+	    // ===== CUSTOMER DETAILS =====
+	    document.add(new Paragraph("Bill To", headingFont));
+	    document.add(new Paragraph("Customer Name : " + user.getName(), normalFont));
+	    document.add(new Paragraph("Email         : " + user.getEmail(), normalFont));
+	    document.add(new Paragraph(" "));
+
+	    // ===== INVOICE META =====
+	    document.add(new Paragraph("Invoice No : INV-" + product.getId(), normalFont));
+	    document.add(new Paragraph("Invoice Date : " + LocalDate.now(), normalFont));
+	    document.add(new Paragraph("Payment Status : PAID", normalFont));
+	    document.add(new Paragraph(" "));
+
+	    // ===== PRODUCT TABLE =====
+	    PdfPTable table = new PdfPTable(5);
+	    table.setWidthPercentage(100);
+	    table.setWidths(new int[]{2, 4, 4, 2, 3});
+
+	    table.addCell("Product ID");
+	    table.addCell("Product Name");
+	    table.addCell("Category");
+	    table.addCell("Qty");
+	    table.addCell("Price");
+
+	    table.addCell(String.valueOf(product.getId()));
+	    table.addCell(product.getProductName());
+	    table.addCell(product.getCategory());
+	    table.addCell("1");
+	    table.addCell("₹ " + product.getProductPrice());
+
+	    document.add(table);
+	    document.add(new Paragraph(" "));
+
+	    // ===== TOTAL =====
+	    Paragraph total = new Paragraph(
+	            "Total Amount : ₹ " + product.getProductPrice(),
+	            headingFont);
+	    total.setAlignment(Element.ALIGN_RIGHT);
+	    document.add(total);
+
+	    document.add(new Paragraph(" "));
+	    document.add(new Paragraph(
+	            "This is a computer-generated invoice and does not require a signature.",
+	            normalFont));
+
+	    document.close();
+	}
+
 	
 }
