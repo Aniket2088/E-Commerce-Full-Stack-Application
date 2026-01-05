@@ -78,12 +78,10 @@ public class UserDao {
 	    openConnection();
 	    try {
 	        entityTransaction.begin();
-	        User managedUser = entityManager.merge(user);
-	        entityManager.flush(); // Ensure changes are persisted
+	        entityManager.merge(user);
 	        entityTransaction.commit();
 	    } catch (Exception e) {
-	    	e.getMessage();
-	        if (entityTransaction.isActive()) {
+	        if (entityTransaction != null && entityTransaction.isActive()) {
 	            entityTransaction.rollback();
 	        }
 	        throw e;
@@ -91,6 +89,7 @@ public class UserDao {
 	        closeConnection();
 	    }
 	}
+
 
 	public User findById(int id) {
 		// TODO Auto-generated method stub
