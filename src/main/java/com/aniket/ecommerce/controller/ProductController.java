@@ -56,10 +56,11 @@ public class ProductController {
 	        if (user == null) {
 	            return "redirect:/userLogin";
 	        }
-	        
+	        Map<Integer, Integer> productQuantities = user.getCartQuantities();
 	        // Get all products with payment status true for this user
 	        List<Product> purchasedProducts = productService.findByPaymentStatusTrue(user);
 	        model.addAttribute("purchasedProducts", purchasedProducts);
+	        model.addAttribute("productQuantity", productQuantities);
 	        
 	        return "orders";
 	    }

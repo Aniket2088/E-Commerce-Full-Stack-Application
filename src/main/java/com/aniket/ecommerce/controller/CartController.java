@@ -53,32 +53,45 @@ public class CartController {
     @PostMapping("/addToCart/{productId}")
     @Transactional
     public String addToCart(@PathVariable("productId") int productId,
-                          HttpSession session,
-                          RedirectAttributes redirectAttributes) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
+                            HttpSession session,
+                            RedirectAttributes redirectAttributes) {
+
+        User sessionUser = (User) session.getAttribute("user");
+        if (sessionUser == null) {
             redirectAttributes.addFlashAttribute("message", "Please login to add items to cart");
             return "redirect:/userLogin";
         }
 
         // Get fresh user from DB
-        User currentUser = userService.findById(user.getId());
+        User currentUser = userService.findById(sessionUser.getId());
         Product product = productService.findProductById(productId);
 
-        // Check if product already in cart
-        if (currentUser.getCartItems().stream().noneMatch(p -> p.getId() == productId)) {
+        // 1️⃣ Always update quantity map
+        Map<Integer, Integer> qtyMap = currentUser.getCartQuantities();
+        qtyMap.put(productId, qtyMap.getOrDefault(productId, 0) + 1);
+
+        // 2️⃣ Add product to cart list ONLY once
+        boolean alreadyInCart = currentUser.getCartItems()
+                .stream()
+                .anyMatch(p -> p.getId() == productId);
+
+        if (!alreadyInCart) {
             currentUser.getCartItems().add(product);
-            userService.save(currentUser);
-            
-            // Update session with the saved user
-            session.setAttribute("user", currentUser);
-            redirectAttributes.addFlashAttribute("success", product.getProductName()+ " added to cart!");
-        } else {
-            redirectAttributes.addFlashAttribute("info", product.getProductName() + " is already in your cart");
         }
+
+        userService.save(currentUser);
+
+        // Update session
+        session.setAttribute("user", currentUser);
+
+        redirectAttributes.addFlashAttribute(
+                "success",
+                product.getProductName() + " added to cart!"
+        );
 
         return "redirect:/cartView";
     }
+
 
     @PostMapping("/updateCartQuantity")
     @Transactional
@@ -86,46 +99,54 @@ public class CartController {
                                    @RequestParam("quantity") int quantity,
                                    HttpSession session,
                                    RedirectAttributes redirectAttributes) {
+
         User sessionUser = (User) session.getAttribute("user");
-        
+
         if (sessionUser == null) {
             return "redirect:/userLogin";
         }
-        
+
         if (quantity < 1) {
             redirectAttributes.addFlashAttribute("error", "Quantity must be at least 1");
             return "redirect:/cartView";
         }
-        
+
         // Get fresh user from database
         User user = userService.findById(sessionUser.getId());
         Product product = productService.findProductById(productId);
-        
+        List<Product> cartItems = user.getCartItems();
+
         if (product == null) {
             redirectAttributes.addFlashAttribute("error", "Product not found");
             return "redirect:/cartView";
         }
-        
-        // Since your current model doesn't track quantity per product,
-        // we need to implement quantity tracking
-        // This is a temporary implementation - you'll need to modify your data model
-        // to properly support quantities
-        
-        // For now, we'll just add/remove the product multiple times
-        // First remove all instances of this product
+
+        // ================= EXISTING LOGIC (UNCHANGED) =================
         user.getCartItems().removeIf(p -> p.getId() == productId);
-        
-        // Then add the product the requested number of times
+
+        int count = 0;
         for (int i = 0; i < quantity; i++) {
             user.getCartItems().add(product);
+            count++;
         }
-        
+
+              // ===============================================================
+
+        // ===================== 🔥 ADDED PART 🔥 ========================
+        // Store quantity in DB-safe map (productId -> quantity)
+        user.getCartQuantities().put(productId, quantity);
+        // ===============================================================
+        System.out.println(user.getCartQuantities());
         userService.save(user);
+
+       
+
         session.setAttribute("user", user);
-        
+
         redirectAttributes.addFlashAttribute("success", "Quantity updated successfully");
         return "redirect:/cartView";
     }
+
 
     @GetMapping("/removeFromCart/{productId}")
     @Transactional

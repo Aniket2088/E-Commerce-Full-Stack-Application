@@ -434,209 +434,165 @@
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="${pageContext.request.contextPath}/homePage">
-                <i class="fas fa-shopping-bag me-2"></i>ShopEase
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="${pageContext.request.contextPath}/homePage">
-                            <i class="fas fa-home me-1"></i>Home
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="${pageContext.request.contextPath}/products">
-                            <i class="fas fa-store me-1"></i>All Products
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="${pageContext.request.contextPath}/cartView">
-                            <i class="fas fa-shopping-cart me-1"></i>Cart
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="${pageContext.request.contextPath}/orders">
-                            <i class="fas fa-box me-1"></i>Orders
-                        </a>
-                    </li>
-                </ul>
-                
-                <div class="d-flex align-items-center">
-                    <c:choose>
-                        <c:when test="${not empty sessionScope.user}">
-                            <div class="dropdown">
-                                <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center" 
-                                        type="button" id="userDropdown" data-bs-toggle="dropdown">
-                                    <i class="fas fa-user-circle me-2 fs-5"></i>
-                                    <span>${sessionScope.user.name}</span>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/user/profile">
-                                        <i class="fas fa-user me-2"></i>Profile</a></li>
-                                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/orders">
-                                        <i class="fas fa-box me-2"></i>Orders</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" href="${pageContext.request.contextPath}/logout">
-                                        <i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
-                                </ul>
-                            </div>
-                        </c:when>
-                        <c:otherwise>
-                            <a href="${pageContext.request.contextPath}/userLogin" class="btn btn-outline-primary me-2">
-                                <i class="fas fa-sign-in-alt me-1"></i>Login
-                            </a>
-                            <a href="${pageContext.request.contextPath}/register" class="btn btn-primary">
-                                <i class="fas fa-user-plus me-1"></i>Register
-                            </a>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
-            </div>
-        </div>
-    </nav>
+   <!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="${pageContext.request.contextPath}/homePage">
+            <i class="fas fa-shopping-bag me-2"></i>ShopEase
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="${pageContext.request.contextPath}/homePage">
+                        <i class="fas fa-home me-1"></i>Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="${pageContext.request.contextPath}/products">
+                        <i class="fas fa-store me-1"></i>All Products
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="${pageContext.request.contextPath}/cartView">
+                        <i class="fas fa-shopping-cart me-1"></i>Cart
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="${pageContext.request.contextPath}/orders">
+                        <i class="fas fa-box me-1"></i>Orders
+                    </a>
+                </li>
+            </ul>
 
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="container">
-            <h1 class="page-title fade-in">
-                <i class="fas fa-box me-2"></i>My Orders
-            </h1>
-            <p class="lead mb-0 fade-in" style="animation-delay: 0.2s">
-                Track and manage your purchases
-            </p>
-        </div>
-    </div>
-
-    <!-- Orders Content -->
-    <div class="container orders-container">
-        <div class="row">
-            <div class="col-12">
-                <!-- Orders Count -->
-                <div class="d-flex justify-content-between align-items-center mb-4 fade-in">
-                    <h4 class="mb-0">
-                        <c:choose>
-                            <c:when test="${not empty purchasedProducts}">
-                                ${purchasedProducts.size()} Order<c:if test="${purchasedProducts.size() != 1}">s</c:if>
-                            </c:when>
-                            <c:otherwise>
-                                No Orders
-                            </c:otherwise>
-                        </c:choose>
-                    </h4>
-                </div>
-
+            <div class="d-flex align-items-center">
                 <c:choose>
-                    <c:when test="${not empty purchasedProducts}">
-                        <c:forEach var="product" items="${purchasedProducts}" varStatus="status">
-                            <div class="order-card fade-in" style="animation-delay: ${status.index * 0.1}s">
-                                <div class="order-header">
-                                    <div class="order-info">
-                                        <h5>Order #${product.id}</h5>
-                                    </div>
-                                    <span class="status-badge status-paid">
-                                        <i class="fas fa-check-circle"></i> Paid
-                                    </span>
-                                </div>
-                                
-                                <div class="product-item">
-                                    <div class="row align-items-center">
-                                        <div class="col-md-2">
-                                            <div class="product-image">
-                                                <c:choose>
-                                                    <c:when test="${product.hasImage()}">
-                                                        <img src="data:image/jpeg;base64,${product.getBase64Image()}" 
-                                                             alt="${product.productName}" 
-                                                             class="product-img">
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <i class="fas fa-box-open fa-2x text-secondary"></i>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-5">
-                                            <h6>${product.productName}</h6>
-                                            <p class="product-description">${product.productDescription}</p>
-                                            <span class="product-category">${product.category}</span>
-                                        </div>
-                                        <div class="col-md-3 text-center">
-                                            <div class="product-quantity">
-                                                <i class="fas fa-box me-1"></i>Quantity: 1
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2 text-end">
-                                            <div class="product-price">
-                                                ₹<fmt:formatNumber value="${product.productPrice}" type="number" maxFractionDigits="2"/>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="order-actions">
-                                    <a href="#" class="action-btn">
-                                        <i class="fas fa-eye me-1"></i>View Details
-                                    </a>
-                                    <a href="#" class="action-btn">
-                                        <i class="fas fa-redo me-1"></i>Reorder
-                                    </a>
-                                    <a href="#" class="action-btn">
-                                        <i class="fas fa-file-invoice me-1"></i>Invoice
-                                    </a>
-                                </div>
-                            </div>
-                        </c:forEach>
-                        
-                        <!-- Load More Button (for pagination) -->
-                        <c:if test="${purchasedProducts.size() >= 5}">
-                            <div class="load-more fade-in">
-                                <button class="btn-load-more">
-                                    <i class="fas fa-arrow-down me-2"></i>Load More Orders
-                                </button>
-                            </div>
-                        </c:if>
+                    <c:when test="${not empty sessionScope.user}">
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center"
+                                    type="button" id="userDropdown" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle me-2 fs-5"></i>
+                                <span>${sessionScope.user.name}</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="${pageContext.request.contextPath}/user/profile">
+                                    <i class="fas fa-user me-2"></i>Profile</a></li>
+                                <li><a class="dropdown-item" href="${pageContext.request.contextPath}/orders">
+                                    <i class="fas fa-box me-2"></i>Orders</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="${pageContext.request.contextPath}/logout">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            </ul>
+                        </div>
                     </c:when>
                     <c:otherwise>
-                        <!-- Empty State -->
-                        <div class="empty-state fade-in">
-                            <div class="empty-icon">
-                                <i class="fas fa-shopping-bag"></i>
-                            </div>
-                            <h4 class="empty-title">No orders yet</h4>
-                            <p class="empty-text">
-                                You haven't placed any orders with us yet. Start shopping to discover amazing products!
-                            </p>
-                            <a href="${pageContext.request.contextPath}/homePage" class="btn-start-shopping">
-                                <i class="fas fa-shopping-cart me-2"></i>Start Shopping
-                            </a>
-                        </div>
+                        <a href="${pageContext.request.contextPath}/userLogin" class="btn btn-outline-primary me-2">
+                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                        </a>
+                        <a href="${pageContext.request.contextPath}/register" class="btn btn-primary">
+                            <i class="fas fa-user-plus me-1"></i>Register
+                        </a>
                     </c:otherwise>
                 </c:choose>
             </div>
         </div>
     </div>
+</nav>
 
-    <!-- Footer -->
-    <footer class="footer py-5">
-        <div class="container position-relative">
-            <div class="row">
-                <div class="col-md-6">
-                    <p class="text-light mb-0">
-                        &copy; 2023 ShopEase. All rights reserved.
-                    </p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <a href="#" class="text-light me-3 text-decoration-none">Privacy Policy</a>
-                    <a href="#" class="text-light text-decoration-none">Terms of Service</a>
-                </div>
-            </div>
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-title fade-in">
+            <i class="fas fa-box me-2"></i>My Orders
+        </h1>
+        <p class="lead mb-0 fade-in" style="animation-delay: 0.2s">
+            Track and manage your purchases
+        </p>
+    </div>
+</div>
+
+<!-- Orders Content -->
+<div class="container orders-container">
+    <div class="row">
+        <div class="col-12">
+
+            <c:choose>
+                <c:when test="${not empty purchasedProducts}">
+                    <c:forEach var="product" items="${purchasedProducts}">
+                        <div class="order-card">
+                            <div class="order-header">
+                                <div class="order-info">
+                                    <h5>Order #${product.id}</h5>
+                                </div>
+                                <span class="status-badge status-paid">
+                                    <i class="fas fa-check-circle"></i> Paid
+                                </span>
+                            </div>
+
+                            <div class="product-item">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2">
+                                        <div class="product-image">
+                                            <c:choose>
+                                                <c:when test="${product.hasImage()}">
+                                                    <img src="data:image/jpeg;base64,${product.getBase64Image()}"
+                                                         alt="${product.productName}"
+                                                         class="product-img">
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <i class="fas fa-box-open fa-2x text-secondary"></i>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-5">
+                                        <h6>${product.productName}</h6>
+                                        <p class="product-description">${product.productDescription}</p>
+                                        <span class="product-category">${product.category}</span>
+                                    </div>
+
+                                    <!-- ✅ FIXED QUANTITY -->
+                                    <div class="col-md-3 text-center">
+                                        <div class="product-quantity">
+                                            <i class="fas fa-box me-1"></i>
+                                            Quantity:
+                                            <c:out value="${productQuantity[product.id] != null ? productQuantity[product.id] : 1}" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2 text-end">
+                                        <div class="product-price">
+                                            ₹<fmt:formatNumber value="${product.productPrice}"
+                                                               type="number"
+                                                               maxFractionDigits="2"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </c:forEach>
+                </c:when>
+
+                <c:otherwise>
+                    <div class="empty-state">
+                        <h4>No orders yet</h4>
+                    </div>
+                </c:otherwise>
+            </c:choose>
+
         </div>
-    </footer>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer py-5">
+    <div class="container">
+        <p class="text-light mb-0">&copy; 2023 ShopEase. All rights reserved.</p>
+    </div>
+</footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>

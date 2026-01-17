@@ -38,4 +38,15 @@ public class User {
         inverseJoinColumns = @JoinColumn(name = "product_id")
     )
     private List<Product> cartItems = new ArrayList<>();
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+        name = "user_cart_quantity",
+        joinColumns = @JoinColumn(name = "user_id")
+    )
+    @MapKeyColumn(name = "product_id", nullable = false)
+    @Column(name = "quantity", nullable = false)
+    private Map<Integer, Integer> cartQuantities = new HashMap<>();
+
+
+
 }
