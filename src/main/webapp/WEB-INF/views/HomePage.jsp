@@ -639,9 +639,10 @@
                                             <div class="product-image-container">
                                                 <c:choose>
                                                     <c:when test="${not empty product.image}">
-                                                        <img src="data:image/jpeg;base64,${Base64.getEncoder().encodeToString(product.image)}" 
-                                                             class="product-image" alt="${product.productName}">
-                                                    </c:when>
+														<img
+															src="${pageContext.request.contextPath}/uploads/products/${product.imagePath}"
+															class="product-image" alt="${product.productName}">
+													</c:when>
                                                     <c:otherwise>
                                                         <div class="product-image d-flex align-items-center justify-content-center">
                                                             <i class="fas fa-image fa-3x text-muted"></i>
