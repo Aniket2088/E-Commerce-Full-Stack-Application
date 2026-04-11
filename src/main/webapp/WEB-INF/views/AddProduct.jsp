@@ -201,11 +201,9 @@
 </head>
 <body>
 <%
-MerchantService  service = new MerchantService();
-    // Get merchant from flash attributes or session
+MerchantService service = new MerchantService();
     Merchant merchant = (Merchant) request.getAttribute("merchant");
     if (merchant == null) {
-        // Fallback to session ID if needed
         Integer merchantId = (Integer) session.getAttribute("merchantId");
         if (merchantId != null) {
             merchant = service.findMerchantById(merchantId);
@@ -219,21 +217,20 @@ MerchantService  service = new MerchantService();
         </div>
 
         <form action="./saveProduct/<%=merchant.getId() %>" method="post" enctype="multipart/form-data" id="productForm">
+            
+            <!-- 1. Product Name -->
             <div class="form-group">
                 <label for="productName">Product Name</label>
                 <input type="text" id="productName" name="productName" placeholder="Enter product name" required>
             </div>
 
-            <div class="form-group">
-                <label for="productDescription">Product Description</label>
-                <textarea id="productDescription" name="productDescription" placeholder="Enter detailed product description" required></textarea>
-            </div>
-
+            <!-- 2. Product Price -->
             <div class="form-group">
                 <label for="productPrice">Product Price (₹)</label>
                 <input type="number" id="productPrice" name="productPrice" step="0.01" min="0" placeholder="0.00" required>
             </div>
 
+            <!-- 3. Product Category -->
             <div class="form-group">
                 <label for="category">Product Category</label>
                 <select id="category" name="category" required>
@@ -248,6 +245,32 @@ MerchantService  service = new MerchantService();
                 </select>
             </div>
 
+            <!-- 4. Product Description (MOVED HERE - after name, price, category) -->
+            <div class="form-group">
+                <label for="productDescription">Product Description</label>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                    <button type="button" id="generateBtn" onclick="generateDescription()" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(to right, #7209b7, #4361ee);
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        font-size: 0.85rem;
+                        font-weight: 600;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                    ">
+                        ✨ Generate with AI
+                    </button>
+                    <span id="aiStatus" style="font-size:0.85rem; color:#6c757d;"></span>
+                </div>
+                <textarea id="productDescription" name="productDescription"
+                    placeholder="Enter detailed product description or use AI to generate one" required></textarea>
+            </div>
+
+            <!-- 5. Product Image -->
             <div class="form-group">
                 <label>Product Image</label>
                 <div class="file-input-container">
@@ -266,7 +289,6 @@ MerchantService  service = new MerchantService();
     </div>
 
     <script>
-        // Image preview functionality
         const imageInput = document.getElementById('image');
         const preview = document.getElementById('preview');
         const fileInputLabel = document.querySelector('.file-input-label');
@@ -275,18 +297,15 @@ MerchantService  service = new MerchantService();
             const file = this.files[0];
             if (file) {
                 const reader = new FileReader();
-                
                 reader.addEventListener('load', function() {
                     preview.style.display = 'block';
                     preview.setAttribute('src', this.result);
                     fileInputLabel.style.display = 'none';
                 });
-                
                 reader.readAsDataURL(file);
             }
         });
 
-        // Allow drag and drop
         fileInputLabel.addEventListener('dragover', (e) => {
             e.preventDefault();
             fileInputLabel.style.borderColor = '#4361ee';
@@ -302,13 +321,88 @@ MerchantService  service = new MerchantService();
             e.preventDefault();
             fileInputLabel.style.borderColor = '#e9ecef';
             fileInputLabel.style.backgroundColor = 'transparent';
-            
             if (e.dataTransfer.files.length) {
                 imageInput.files = e.dataTransfer.files;
                 const event = new Event('change');
                 imageInput.dispatchEvent(event);
             }
         });
+
+        async function generateDescription() {
+            const name     = document.getElementById('productName').value.trim();
+            const price    = document.getElementById('productPrice').value.trim();
+            const category = document.getElementById('category').value.trim();
+            if (!name) {
+                alert("Please enter the product name first.");
+                return;
+            }
+            if (!price) {
+                alert("Please enter the product price first.");
+                return;
+            }
+            if (!category) {
+                alert("Please select a category first.");
+                return;
+            }
+
+            const btn    = document.getElementById('generateBtn');
+            const status = document.getElementById('aiStatus');
+
+            btn.disabled = true;
+            btn.textContent = "⏳ Generating...";
+            status.textContent = "AI is writing your description...";
+
+            const prompt = "You are a product copywriter for an e-commerce platform called Shop Ease. " +
+            "Write a compelling, professional product description (2-3 sentences) for the following product. " +
+            "Be specific and highlight key features and benefits.\n\n" +
+            "Product Name: " + name + "\n" +
+            "Category: " + category + "\n" +
+            "Price: Rs." + price + "\n\n" +
+            "Return ONLY the description text, no headings or extra formatting.";
+
+            try {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer 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"
+                    },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        max_tokens: 300,
+                        messages: [
+                            { role: "system", content: "You are a product copywriter for an e-commerce platform. Always write description based on the product details provided." },
+                            { role: "user", content: prompt }
+                        ]
+                    })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    console.log("EXACT ERROR:", JSON.stringify(errData));
+                    status.textContent = "❌ " + (errData.error?.message || "Unknown error");
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.choices && data.choices[0] && data.choices[0].message) {
+                    document.getElementById('productDescription').value =
+                        data.choices[0].message.content.trim();
+                    status.textContent = "✅ Description generated! You can edit it.";
+                } else {
+                    status.textContent = "❌ Could not generate. Try again.";
+                    console.error("API error:", data);
+                }
+
+            } catch (err) {
+                status.textContent = "❌ Network error. Check console.";
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = "✨ Generate with AI";
+            }
+        }
     </script>
 </body>
 </html>
