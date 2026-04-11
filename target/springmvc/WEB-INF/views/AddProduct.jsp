@@ -200,17 +200,12 @@
 </style>
 </head>
 <body>
+<%-- ✅ Just read from session directly --%>
 <%
-MerchantService  service = new MerchantService();
-    // Get merchant from flash attributes or session
-    Merchant merchant = (Merchant) request.getAttribute("merchant");
-    if (merchant == null) {
-        // Fallback to session ID if needed
-        Integer merchantId = (Integer) session.getAttribute("merchantId");
-        if (merchantId != null) {
-            merchant = service.findMerchantById(merchantId);
-        }
-    }
+Merchant merchant = (Merchant) request.getAttribute("merchant");
+if (merchant == null) {
+    merchant = (Merchant) session.getAttribute("merchant");
+}
 %>
     <div class="container">
         <div class="form-header">
@@ -233,7 +228,11 @@ MerchantService  service = new MerchantService();
                 <label for="productPrice">Product Price (₹)</label>
                 <input type="number" id="productPrice" name="productPrice" step="0.01" min="0" placeholder="0.00" required>
             </div>
-
+<div class="form-group">
+    <label for="stockQuantity">Stock Quantity</label>
+    <input type="number" id="stockQuantity" name="stockQuantity" 
+           min="0" placeholder="Enter stock quantity" required>
+</div>
             <div class="form-group">
                 <label for="category">Product Category</label>
                 <select id="category" name="category" required>
