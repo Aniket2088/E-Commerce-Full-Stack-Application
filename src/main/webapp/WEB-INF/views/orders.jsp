@@ -117,7 +117,7 @@
                             <h5>Order #${order.id}</h5>
                             <p>
                                 <i class="fas fa-calendar-alt me-1"></i>
-                                <fmt:formatDate value="${order.orderDate}" pattern="dd MMM yyyy, hh:mm a" type="both"/>
+                               ${order.formattedDate}
                                 &nbsp;|&nbsp;
                                 <strong>${order.orderItems.size()}</strong> item(s)
                             </p>
@@ -137,6 +137,10 @@
                                     <span class="status-badge status-failed"><i class="fas fa-times-circle"></i>${order.paymentStatus}</span>
                                 </c:otherwise>
                             </c:choose>
+                              <a href="${pageContext.request.contextPath}/downloadInvoice/${order.id}" 
+       class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-file-invoice-dollar me-1"></i>Invoice
+    </a>
                         </div>
                     </div>
 

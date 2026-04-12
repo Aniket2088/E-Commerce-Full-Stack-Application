@@ -13,7 +13,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
+import java.time.format.DateTimeFormatter;
 import lombok.Data;
 
 @Entity
@@ -43,5 +43,13 @@ public class Order {
                 ", orderDate=" + orderDate +
                 ", paymentStatus='" + paymentStatus + '\'' +
                 '}';
+    }
+
+
+    public String getFormattedDate() {
+        if (this.orderDate == null) return "";
+        return this.orderDate.format(
+            DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a")
+        );
     }
 }

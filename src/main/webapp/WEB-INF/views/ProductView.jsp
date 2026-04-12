@@ -368,8 +368,8 @@
                                 <div class="product-card h-100">
                                     <div class="product-img-container position-relative">
                                         <c:if test="${product.image != null}">
-                                            <img src="data:image/jpeg;base64,${Base64.getEncoder().encodeToString(product.image)}" 
-                                                 class="product-img" alt="${product.productName}">
+                                           <img src="${pageContext.request.contextPath}/uploads/products/${product.imagePath}" 
+     class="product-img" alt="${product.productName}">
                                         </c:if>
                                         <c:if test="${product.discount > 0}">
                                             <span class="badge discount-badge">${product.discount}% OFF</span>
@@ -409,8 +409,8 @@
                         <div class="product-card h-100">
                             <div class="product-img-container position-relative">
                                 <c:if test="${product.image != null}">
-                                    <img src="data:image/jpeg;base64,${Base64.getEncoder().encodeToString(product.image)}" 
-                                         class="product-img" alt="${product.productName}">
+                                    <img src="${pageContext.request.contextPath}/uploads/products/${product.imagePath}" 
+     class="product-img" alt="${product.productName}">
                                 </c:if>
                                 <c:if test="${product.discount > 0}">
                                     <span class="badge discount-badge">${product.discount}% OFF</span>
@@ -476,8 +476,8 @@
                         <div class="product-card h-100">
                             <div class="product-img-container position-relative">
                                 <c:if test="${product.image != null}">
-                                    <img src="data:image/jpeg;base64,${Base64.getEncoder().encodeToString(product.image)}" 
-                                         class="product-img" alt="${product.productName}">
+                                   <img src="${pageContext.request.contextPath}/uploads/products/${product.imagePath}" 
+     class="product-img" alt="${product.productName}">
                                 </c:if>
                                 <span class="badge bg-success position-absolute top-0 start-0">New</span>
                             </div>
