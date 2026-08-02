@@ -66,15 +66,14 @@ public class ProductController {
     // ─────────────────────────────────────────────────────────────
     @PostMapping("/saveProduct/{merchantId}")
     public String saveProduct(
-            @PathVariable("merchantId")         int          merchantId,
-            @RequestParam("productName")        String       productName,
-            @RequestParam("productDescription") String       productDescription,
-            @RequestParam("productPrice")       double       productPrice,
-            @RequestParam("category")           String       category,
-            @RequestParam("stockQuantity")      int          stockQuantity,
+            @PathVariable("merchantId")         int           merchantId,
+            @RequestParam("productName")        String        productName,
+            @RequestParam("productDescription") String        productDescription,
+            @RequestParam("productPrice")       double        productPrice,
+            @RequestParam("category")           String        category,
+            @RequestParam("stockQuantity")      int           stockQuantity,
             @RequestParam("image")              MultipartFile imageFile,
-            HttpServletRequest request,
-            ModelMap model) {
+            ModelMap model) {               // ✅ HttpServletRequest removed
 
         try {
             Merchant merchant = merchantService.findMerchantById(merchantId);
@@ -88,15 +87,10 @@ public class ProductController {
             product.setStockQuantity(stockQuantity);
             product.setMerchant(merchant);
 
-            // ✅ Save image to disk → store only the filename in DB
-            if (!imageFile.isEmpty()) {
-                String filename = saveImageToDisk(imageFile, request);
-                product.setImagePath(filename);
-            }
+            // ✅ One line — service handles Cloudinary upload
+            productService.saveProduct(product, imageFile);
 
-            productService.saveProduct(product);
-
-            model.addAttribute("products", merchant.getProducts());
+            model.addAttribute("products", merchantService.findMerchantById(merchantId).getProducts());
             model.addAttribute("success", "Product saved successfully!");
             return "MerchantproductView";
 
@@ -105,6 +99,8 @@ public class ProductController {
             return "MerchantproductView";
         }
     }
+    // ✅ DELETE the entire saveImageToDisk() method
+    // ✅ DELETE the UPLOAD_DIR constant
 
     // ─────────────────────────────────────────────────────────────
     // PRODUCTS BY CATEGORY

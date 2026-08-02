@@ -649,8 +649,9 @@
                                         <div class="product-image-container">
                                             <c:choose>
                                                 <c:when test="${product.hasImage()}">
-                                                   <img src="${pageContext.request.contextPath}/uploads/products/${product.imagePath}" 
-     class="product-img" alt="${product.productName}">
+                                                    <img src="${product.imagePath}"
+     alt="${product.productName}"
+     class="product-image"/>
                                                 </c:when>
                                                 <c:otherwise>
                                                     <div class="d-flex align-items-center justify-content-center h-100">

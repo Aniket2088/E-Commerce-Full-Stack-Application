@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <!DOCTYPE html>
@@ -151,7 +151,10 @@
                                 <div class="product-thumb">
                                     <c:choose>
                                         <c:when test="${item.product.hasImage()}">
-                                            <img src="${pageContext.request.contextPath}/uploads/products/${item.product.imagePath}" alt="${item.product.productName}">
+                                        
+                                                   <img src="${item.product.imagePath}"
+     alt="${item.product.productName}"
+     class="product-image"/>
                                         </c:when>
                                         <c:otherwise><i class="fas fa-box-open fa-2x text-secondary"></i></c:otherwise>
                                     </c:choose>

@@ -49,9 +49,20 @@ public class ProductDao {
         openConnection();
         try {
             entityTransaction.begin();
-            entityManager.merge(product);
+            
+            if (product.getId() == 0) {
+                // ✅ NEW product — persist gives back real generated ID
+                entityManager.persist(product);
+                entityManager.flush(); // forces INSERT immediately
+            } else {
+                // ✅ EXISTING product — merge for updates
+                product = (Product) entityManager.merge(product);
+            }
+            
             entityTransaction.commit();
+            System.out.println("✅ DAO returning ID = " + product.getId()); // should NOT be 0
             return product;
+            
         } catch (Exception e) {
             if (entityTransaction.isActive()) entityTransaction.rollback();
             throw e;
@@ -184,10 +195,27 @@ public class ProductDao {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // REMOVED: findByPaymentStatusTrue(User user)
-    // Reason: paymentStatus and user FK have been removed from Product.
-    //         Purchase history is now tracked via Order + OrderItem entities.
-    //         Use OrderDao.findByUser(user) instead.
-    // ─────────────────────────────────────────────────────────────
+ // ✅ ADD this new method — only updates, never inserts
+    public void updateImagePath(int productId, String imageUrl) {
+        if (productId == 0) {
+            System.out.println("❌ updateImagePath called with id=0 — skipping!");
+            return;
+        }
+        openConnection();
+        try {
+            entityTransaction.begin();
+            int rows = entityManager.createQuery(
+                "UPDATE Product p SET p.imagePath = :imageUrl WHERE p.id = :id")
+                .setParameter("imageUrl", imageUrl)
+                .setParameter("id", productId)
+                .executeUpdate();
+            entityTransaction.commit();
+            System.out.println("✅ Updated " + rows + " rows with image URL for id=" + productId);
+        } catch (Exception e) {
+            if (entityTransaction.isActive()) entityTransaction.rollback();
+            throw e;
+        } finally {
+            closeConnection();
+        }
+    }
 }

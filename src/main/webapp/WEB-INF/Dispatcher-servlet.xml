@@ -22,11 +22,14 @@
         <property name="suffix" value=".jsp"/>
     </bean>
 
-    <!-- ✅ CHANGED to CommonsMultipartResolver -->
-    <bean id="multipartResolver"
-          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-        <property name="maxUploadSize" value="10485760"/>
-        <property name="defaultEncoding" value="UTF-8"/>
-    </bean>
+    <!-- Your multipart resolver for file uploads -->
+    <!-- ✅ Uses Servlet 3.0 built-in multipart — no extra JAR needed -->
+<!-- ✅ Replace StandardServletMultipartResolver with this -->
+<bean id="multipartResolver"
+      class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    <property name="maxUploadSize"    value="10485760" />  <!-- 10 MB -->
+    <property name="maxInMemorySize"  value="1048576"  />  <!-- 1 MB  -->
+</bean>
+
 
 </beans>

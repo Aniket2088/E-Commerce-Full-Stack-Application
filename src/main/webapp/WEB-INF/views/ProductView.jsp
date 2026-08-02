@@ -476,8 +476,9 @@
                         <div class="product-card h-100">
                             <div class="product-img-container position-relative">
                                 <c:if test="${product.image != null}">
-                                   <img src="${pageContext.request.contextPath}/uploads/products/${product.imagePath}" 
-     class="product-img" alt="${product.productName}">
+                                   <img src="${product.imagePath}"
+									     alt="${product.productName}"
+									     class="product-image"/>
                                 </c:if>
                                 <span class="badge bg-success position-absolute top-0 start-0">New</span>
                             </div>
