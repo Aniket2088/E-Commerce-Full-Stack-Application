@@ -1,6 +1,7 @@
 package com.aniket.ecommerce.entity;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,5 +44,10 @@ public class Order {
                 ", orderDate=" + orderDate +
                 ", paymentStatus='" + paymentStatus + '\'' +
                 '}';
+    }
+    
+    public String getFormattedDate() {
+        if (orderDate == null) return "";
+        return orderDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a"));
     }
 }

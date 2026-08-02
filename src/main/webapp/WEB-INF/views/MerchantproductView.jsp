@@ -159,9 +159,9 @@
                             <div class="product-image-container">
                                 <c:choose>
                                     <c:when test="${product.hasImage()}">
-                                        <img src="${pageContext.request.contextPath}/uploads/products/${product.imagePath}"
-                                             alt="${product.productName}"
-                                             class="product-image"/>
+                                       <img src="${product.imagePath}"
+     alt="${product.productName}"
+     class="product-image"/>
                                     </c:when>
                                     <c:otherwise>
                                         <i class="fas fa-image no-image-placeholder"></i>

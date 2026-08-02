@@ -117,7 +117,7 @@
                             <h5>Order #${order.id}</h5>
                             <p>
                                 <i class="fas fa-calendar-alt me-1"></i>
-                                <fmt:formatDate value="${order.orderDate}" pattern="dd MMM yyyy, hh:mm a" type="both"/>
+                              ${order.formattedDate}
                                 &nbsp;|&nbsp;
                                 <strong>${order.orderItems.size()}</strong> item(s)
                             </p>
@@ -147,7 +147,10 @@
                                 <div class="product-thumb">
                                     <c:choose>
                                         <c:when test="${item.product.hasImage()}">
-                                            <img src="${pageContext.request.contextPath}/uploads/products/${item.product.imagePath}" alt="${item.product.productName}">
+                                        
+                                                   <img src="${item.product.imagePath}"
+     alt="${item.product.productName}"
+     class="product-image"/>
                                         </c:when>
                                         <c:otherwise><i class="fas fa-box-open fa-2x text-secondary"></i></c:otherwise>
                                     </c:choose>

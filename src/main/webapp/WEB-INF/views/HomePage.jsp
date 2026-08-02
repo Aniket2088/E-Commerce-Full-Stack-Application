@@ -638,10 +638,10 @@
                                         <div class="product-card">
                                             <div class="product-image-container">
                                                 <c:choose>
-                                                    <c:when test="${not empty product.image}">
-														<img
-															src="${pageContext.request.contextPath}/uploads/products/${product.imagePath}"
-															class="product-image" alt="${product.productName}">
+                                                    <c:when test="${product.hasImage()}">
+                                       <img src="${product.imagePath}"
+										     alt="${product.productName}"
+										     class="product-image"/>
 													</c:when>
                                                     <c:otherwise>
                                                         <div class="product-image d-flex align-items-center justify-content-center">
